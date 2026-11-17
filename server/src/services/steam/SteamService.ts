@@ -6,7 +6,7 @@ import { HTTP_RESPONSE_STATUS } from "../../common/http/constants";
 import { SteamApiError } from "../../exceptions/SteamApiError";
 import { ApiResponse } from "../../shared/types/apiResponse";
 import { GameLibraryResponse } from "../../shared/types/game";
-import { STEAM_API_URL, STEAM_STORE_API_URL } from "../../config/constants";
+import { STEAM_API_URL } from "../../config/constants";
 
 class SteamService {
   private STEAM_API_KEY: string;
@@ -95,25 +95,6 @@ class SteamService {
           error.response?.status || HTTP_RESPONSE_STATUS.SERVER_ERROR,
           "Failed fetching SchemaForGame from SteamAPI"
         );
-    }
-  }
-
-  //TODO: Get cover from IGDB
-  async getCoverGame(gameName: string, gameId: number): Promise<string> {
-    try {
-      const response = await axios.get(
-        `${STEAM_STORE_API_URL}/storesearch?term=${gameName}&cc=es`,
-      );
-
-      const game = response.data.items.find(
-        (item: { id: number }) => item.id === gameId,
-      );
-      return game?.tiny_image || ""; // la cover, retorna '' si game es undefined
-    } catch (error: any) {
-      throw new SteamApiError(
-        error.response?.status || HTTP_RESPONSE_STATUS.SERVER_ERROR,
-        "Failed fetching Cover game from SteamAPI"
-      );
     }
   }
 }

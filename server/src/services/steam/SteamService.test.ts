@@ -213,35 +213,4 @@ describe("Make requests to the Steam API", () => {
 
     expect(mockedAxios.get).toHaveBeenCalledTimes(1);
   });
-
-  it("should return the games cover image.", async () => {
-    const apiMockResponse = {
-      data: {
-        items: [
-          {
-            type: "app",
-            name: "Horizon Zero Dawn™ Complete Edition",
-            id: 1151640,
-            tiny_image:
-              "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1151640/capsule_231x87.jpg?t=1736534555",
-            metascore: "",
-            platforms: { windows: true, mac: false, linux: false },
-            streamingvideo: false,
-            controller_support: "full",
-          },
-        ],
-      },
-    };
-
-    mockedAxios.get.mockResolvedValue(apiMockResponse);
-
-    const result = await apiHandlerService.getCoverGame("Horizon", 1151640);
-
-    const resultExpected =
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1151640/capsule_231x87.jpg?t=1736534555";
-
-    expect(result).toBe(resultExpected);
-
-    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
-  });
 });

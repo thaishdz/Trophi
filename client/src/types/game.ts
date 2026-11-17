@@ -9,6 +9,8 @@ export interface Achievement {
 export interface GameData {
   gameId: number;
   gameName: string;
+  cover?: string; // portada vertical 600x900 (CDN de Steam)
+  coverFallback?: string; // cabecera horizontal si la portada vertical no existe
   totalGameAchievements: number;
   achievements: Achievement[];
 }
