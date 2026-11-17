@@ -24,7 +24,7 @@ const steamHttpClient = axios.create({
 
 passport.use(
     new SteamOpenIdStrategy({
-        returnURL: 'http://localhost:8000/auth/steam/return', // back to the backend to process the Steam callback
+        returnURL: `${config.BACKEND_URL}/auth/steam/return`, // back to the backend to process the Steam callback
         profile: true,
         apiKey: config.STEAM_API_KEY,
         maxNonceTimeDelay: 120, // Optional, in seconds, time between creation and verification of nonce date

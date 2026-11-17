@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { passport } from "../config/passport";
+import config from "../config";
 
 const router = Router();
 
@@ -10,7 +11,7 @@ router.get('/steam', passport.authenticate('steam-openid'));
 router.get('/steam/return',
   passport.authenticate('steam-openid', { failureRedirect: '/login' }),
   (req, res) => {
-    res.redirect('http://localhost:3000/dashboard');
+    res.redirect(`${config.FRONTEND_URL}/dashboard`);
   }
 );
 
