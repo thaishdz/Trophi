@@ -5,6 +5,7 @@ import AchievementsService from "../services/achievements/AchievementsService";
 
 import { GameData } from "../shared/types/game";
 import { AchievementPlayerData } from "../shared/types/achievement";
+import { getCoverUrls } from "../services/steam/covers";
 import { createApiResponse } from "../common/http/responses";
 import { HTTP_RESPONSE_STATUS } from "../common/http/constants";
 import { SteamApiError } from "../exceptions/SteamApiError";
@@ -64,6 +65,7 @@ export class GameController {
         );
       const gameAchievements: GameData = {
         gameId,
+        ...getCoverUrls(gameId),
         ...playerDataAchievements,
       };
 

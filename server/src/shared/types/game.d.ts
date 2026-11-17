@@ -19,5 +19,6 @@ export interface GameLibraryResponse {
 export interface GameData extends Partial<AchievementPlayerData> {
     gameId: number;
     gameName: string;
-    cover?: string;
+    cover?: string; // portada vertical 600x900
+    coverFallback?: string; // cabecera horizontal, para cuando no existe la portada vertical
 }
