@@ -17,7 +17,6 @@ export class GameController {
     private achievementService: AchievementsService
   ) {}
 
-  // TODO: Llamar 1 sola vez a Steam para obtener la biblioteca y guardarla en BBDD
   public searchGame = async (
     req: Request,
     res: Response,

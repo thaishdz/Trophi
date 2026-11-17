@@ -6,6 +6,8 @@ import { ApiResponse } from "../../shared/types/apiResponse";
 import { GameLibraryResponse } from "../../shared/types/game";
 import { SteamApiError } from "../../exceptions/SteamApiError";
 import { HTTP_RESPONSE_STATUS } from "../../common/http/constants";
+import { GAME_LIBRARY_TTL_MS } from "../../config/constants";
+import { GameLibrary } from "../../models/GameLibrary";
 
 class GameService {
   /*
@@ -15,7 +17,33 @@ class GameService {
    */
   constructor(private steamService: SteamService) {}
 
+  /*
+   ** La biblioteca se guarda en BBDD y solo se vuelve a pedir a Steam cuando
+   ** no existe o tiene más de GAME_LIBRARY_TTL_MS. Si Steam falla y hay una
+   ** copia guardada (aunque esté caducada), se devuelve esa copia.
+   */
   async getGamesLibrary(steamId: string): Promise<GameData[]> {
+    const stored = await GameLibrary.findOne({ steamId }).lean();
+
+    if (stored && Date.now() - stored.syncedAt.getTime() < GAME_LIBRARY_TTL_MS) {
+      return stored.games;
+    }
+
+    try {
+      const games = await this.fetchGamesLibrary(steamId);
+      await GameLibrary.findOneAndUpdate(
+        { steamId },
+        { games, syncedAt: new Date() },
+        { upsert: true },
+      );
+      return games;
+    } catch (error) {
+      if (stored) return stored.games;
+      throw error;
+    }
+  }
+
+  private async fetchGamesLibrary(steamId: string): Promise<GameData[]> {
     const { data }: ApiResponse<GameLibraryResponse[]> =
       await this.steamService.getOwnedGames(steamId);
 
@@ -23,12 +51,10 @@ class GameService {
       throw new SteamApiError(HTTP_RESPONSE_STATUS.BAD_REQUEST, "Invalid response: expected an array");
     }
 
-    const gamesInfo: GameData[] = data.map((game: GameLibraryResponse) => ({
+    return data.map((game: GameLibraryResponse) => ({
       gameId: game.appid,
       gameName: game.name,
     }));
-
-    return gamesInfo;
   }
 
   findGames(gameName: string, gamesLibrary: GameData[]): GameData[] {
