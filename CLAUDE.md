@@ -32,7 +32,7 @@ The server has no lint or build script, and `dev` uses `--transpile-only`, so ty
 
 ## Environment
 
-- Server env file: `server/src/config/.env` (git-ignored). `config/index.ts` throws at startup if any of `NODE_ENV`, `PORT`, `DATABASE_URI`, `STEAM_API_KEY`, `FRONTEND_URL` is missing. `SESSION_SECRET` is read directly from `process.env` in `app.ts` and is **not** validated there.
+- Server env file: `server/src/config/.env` (git-ignored). `config/index.ts` throws at startup if any of `NODE_ENV`, `PORT`, `DATABASE_URI`, `STEAM_API_KEY`, `FRONTEND_URL`, `BACKEND_URL` is missing (`BACKEND_URL` is the API's public URL, used for the Steam OpenID `returnURL`). `SESSION_SECRET` is read directly from `process.env` in `app.ts` and is **not** validated there.
 - Client env file: `client/.env`, with `VITE_API_URL`.
 - MongoDB must run as a **replica set** (`rs0`); `scripts/init-replica-set.js` initializes it through the `database-init` compose service, and the API waits for it.
 
@@ -46,13 +46,12 @@ The server has no lint or build script, and `dev` uses `--transpile-only`, so ty
 
 **Services.** `routes/index.ts` wires services by hand: `SteamService` (all Steam Web API calls, URLs in constants) is injected into `GameService` and `AchievementsService`, which are injected into `GameController`. Tests mock `SteamService` and use `__fixtures__/dataMock.ts` next to each service.
 
-**Steam API budget.** The app uses its own `STEAM_API_KEY` only, never a user's (ADR 0002). The rate limit (~100k requests/day) is shared by every user, so the design caches achievements server-side with a 5-minute cooldown per `(user, game)`. Keep calls to Steam to a minimum.
+**Steam API budget.** The app uses its own `STEAM_API_KEY` only, never a user's (ADR 0002). The rate limit (~100k requests/day) is shared by every user, so the design caches achievements server-side with a 5-minute cooldown per `(user, game)`. Keep calls to Steam to a minimum. The games library is already cached this way: `GameService.getGamesLibrary` stores it in the `GameLibrary` collection (keyed by `steamId`, TTL `GAME_LIBRARY_TTL_MS`) and falls back to a stale copy if Steam fails.
 
 **Client.** `App.tsx` → `Layout` (`Sidebar`) → `GamesLibrary` / `SearchBox` / `GameStatusTabs` / `GameCard`. Data fetching goes through TanStack Query against `API_URL` (`client/src/config`). Styling is neo-brutalist Tailwind in `styles.css`.
 
 ## Gotchas
 
-- `routes/auth.ts` hardcodes `http://localhost:3000/dashboard` and `config/passport.ts` hardcodes `returnURL: http://localhost:8000/auth/steam/return`. Both break outside local dev.
 - Steam sometimes returns a wrong `Content-Type` with a valid JSON body, so `passport.ts` uses a custom axios client that always tries `JSON.parse`. Don't replace it with the default axios.
 - Vite is configured with polling and fixed HMR host/port for use inside Docker.
-- Open TODOs: persist the Steam library in the DB instead of fetching on every search (`GameController.ts`), game covers from IGDB (`SteamService.ts`), and stronger `AchievementsService` tests.
+- Open TODOs: game covers from IGDB (`SteamService.ts`) and stronger `AchievementsService` tests.
