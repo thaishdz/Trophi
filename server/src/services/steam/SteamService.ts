@@ -31,7 +31,7 @@ class SteamService {
       const gamesLibrary = response.data.response;
 
       if (!('games' in gamesLibrary)) {
-        throw new SteamApiError(403, "Cannot access this user's library")
+        throw new SteamApiError(HTTP_RESPONSE_STATUS.FORBIDDEN, "Cannot access this user's library")
       }
       return { data: gamesLibrary.games};
     } catch (error: any) {
