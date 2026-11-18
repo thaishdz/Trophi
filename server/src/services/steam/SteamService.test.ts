@@ -1,11 +1,19 @@
 import axios from "axios";
 import { HTTP_RESPONSE_STATUS } from "../../common/http/constants";
-import config from "../../config";
 import { SteamApiError } from "../../exceptions/SteamApiError";
 import ApiHandlerService from "./SteamService";
 
 
 jest.mock("axios");
+
+// The real config throws when the .env file is missing, so the tests use a fixed one
+jest.mock("../../config", () => ({
+  __esModule: true,
+  default: { STEAM_API_KEY: "test-key" },
+}));
+
+const STEAM_API_KEY = "test-key";
+const STEAM_ID = "76561198000000000";
 
 // Necesitamos testear que nuestra App interactua bien con la API
 describe("Make requests to the Steam API", () => {
@@ -42,7 +50,7 @@ describe("Make requests to the Steam API", () => {
      */
     mockedAxios.get.mockResolvedValue(apiMockResponse);
 
-    const result = await apiHandlerService.getOwnedGames();
+    const result = await apiHandlerService.getOwnedGames(STEAM_ID);
 
     // Verifica que axios haya sido llamado con un 1 argumento, sin importar su valor exacto.
     expect(mockedAxios.get).toHaveBeenCalledWith(expect.anything());
@@ -51,8 +59,8 @@ describe("Make requests to the Steam API", () => {
     const url = mockedAxios.get.mock.calls[0][0];
 
     // Verificamos que la URL contenga los parámetros esperados
-    expect(url).toContain("key=" + config.STEAM_API_KEY);
-    expect(url).toContain("steamid=" + config.STEAM_ID);
+    expect(url).toContain("key=" + STEAM_API_KEY);
+    expect(url).toContain("steamid=" + STEAM_ID);
     expect(url).toContain("include_appinfo=" + true);
     expect(url).toContain("include_played_free_games=" + true);
 
@@ -68,16 +76,19 @@ describe("Make requests to the Steam API", () => {
   });
 
   it("should throw an fetch error if the API request fails", async () => {
-    const apiError = new SteamApiError(HTTP_RESPONSE_STATUS.SERVER_ERROR, "Failed to fetch Games Library from Steam API");
     /**
      * 	“Cuando se llame a axios.get, en vez de resolver la promesa,
      *  recházala y lanza este error.”
      */
-    mockedAxios.get.mockRejectedValue(apiError);
+    mockedAxios.get.mockRejectedValue({ response: { status: HTTP_RESPONSE_STATUS.SERVER_ERROR } });
 
-    const result = apiHandlerService.getOwnedGames();
+    const result = apiHandlerService.getOwnedGames(STEAM_ID);
 
-    await expect(result).rejects.toThrow(apiError);
+    await expect(result).rejects.toThrow(SteamApiError);
+    await expect(result).rejects.toMatchObject({
+      status: HTTP_RESPONSE_STATUS.SERVER_ERROR,
+      message: "Failed fetching games from Steam API",
+    });
 
     // Verifica que la API fue llamada
     expect(mockedAxios.get).toHaveBeenCalledTimes(1);
@@ -86,45 +97,7 @@ describe("Make requests to the Steam API", () => {
   it("should fetch and return player achievements", async () => {
     const apiMockResponse = {
       data: {
-        playerstats: [
-          {
-            steamID: "11111111111111111",
-            gameName: "Horizon Zero Dawn™ Complete Edition",
-            achievements: [
-              {
-                apiname: "NEW_ACHIEVEMENT_4_21",
-                achieved: 1,
-                unlocktime: 11111111,
-              },
-              {
-                apiname: "NEW_ACHIEVEMENT_5_10",
-                achieved: 1,
-                unlocktime: 11111111,
-              },
-            ],
-          },
-        ],
-      },
-    };
-    // 1. Configuración del mock antes de la llamada
-    mockedAxios.get.mockResolvedValue(apiMockResponse);
-
-    // 2. Llamada a la función que internamente usará el mock
-    const result = await apiHandlerService.getPlayerAchievements(1);
-
-    // 3. Verificaciones de la llamada
-    expect(mockedAxios.get).toHaveBeenCalledWith(expect.anything());
-
-    // Obtenemos la URL que se pasó en la llamada mockeada
-    const url = mockedAxios.get.mock.calls[0][0];
-
-    // Verificamos que la URL contenga los parámetros esperados
-    expect(url).toContain("key=" + config.STEAM_API_KEY);
-    expect(url).toContain("steamid=" + config.STEAM_ID);
-
-    const resultExpected = {
-      data: [
-        {
+        playerstats: {
           steamID: "11111111111111111",
           gameName: "Horizon Zero Dawn™ Complete Edition",
           achievements: [
@@ -140,7 +113,43 @@ describe("Make requests to the Steam API", () => {
             },
           ],
         },
-      ],
+      },
+    };
+    // 1. Configuración del mock antes de la llamada
+    mockedAxios.get.mockResolvedValue(apiMockResponse);
+
+    // 2. Llamada a la función que internamente usará el mock
+    const result = await apiHandlerService.getPlayerAchievements(1, STEAM_ID);
+
+    // 3. Verificaciones de la llamada
+    expect(mockedAxios.get).toHaveBeenCalledWith(expect.anything());
+
+    // Obtenemos la URL que se pasó en la llamada mockeada
+    const url = mockedAxios.get.mock.calls[0][0];
+
+    // Verificamos que la URL contenga los parámetros esperados
+    expect(url).toContain("key=" + STEAM_API_KEY);
+    expect(url).toContain("steamid=" + STEAM_ID);
+
+    // The service keeps the player stats and adds the total number of achievements
+    const resultExpected = {
+      data: {
+        steamID: "11111111111111111",
+        gameName: "Horizon Zero Dawn™ Complete Edition",
+        achievements: [
+          {
+            apiname: "NEW_ACHIEVEMENT_4_21",
+            achieved: 1,
+            unlocktime: 11111111,
+          },
+          {
+            apiname: "NEW_ACHIEVEMENT_5_10",
+            achieved: 1,
+            unlocktime: 11111111,
+          },
+        ],
+        totalGameAchievements: 2,
+      },
     };
 
     expect(result).toEqual(resultExpected);
@@ -149,13 +158,15 @@ describe("Make requests to the Steam API", () => {
   });
 
   it("should throw an fetch error if the Achievements request fails", async () => {
-    const apiError = new SteamApiError(HTTP_RESPONSE_STATUS.SERVER_ERROR, "Failed fetching achievements from Steam API");
+    mockedAxios.get.mockRejectedValue({ response: { status: HTTP_RESPONSE_STATUS.SERVER_ERROR } });
 
-    mockedAxios.get.mockRejectedValue(apiError);
+    const result = apiHandlerService.getPlayerAchievements(1, STEAM_ID);
 
-    const result = apiHandlerService.getPlayerAchievements(1);
-
-    await expect(result).rejects.toThrow(apiError);
+    await expect(result).rejects.toThrow(SteamApiError);
+    await expect(result).rejects.toMatchObject({
+      status: HTTP_RESPONSE_STATUS.SERVER_ERROR,
+      message: "Failed fetching achievements from SteamAPI",
+    });
 
     expect(mockedAxios.get).toHaveBeenCalledTimes(1);
   });
@@ -192,7 +203,7 @@ describe("Make requests to the Steam API", () => {
     const url = mockedAxios.get.mock.calls[0][0];
 
     // Verificamos que la URL contenga los parámetros esperados
-    expect(url).toContain("key=" + config.STEAM_API_KEY);
+    expect(url).toContain("key=" + STEAM_API_KEY);
 
     const resultExpected = {
       data: [
@@ -212,5 +223,27 @@ describe("Make requests to the Steam API", () => {
     expect(result).toEqual(resultExpected);
 
     expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+  });
+
+  it("should throw a 403 error if the library is private", async () => {
+    // Steam answers 200 with an empty response when the profile's game details are private
+    mockedAxios.get.mockResolvedValue({ data: { response: {} } });
+
+    await expect(apiHandlerService.getOwnedGames(STEAM_ID)).rejects.toMatchObject({
+      status: HTTP_RESPONSE_STATUS.FORBIDDEN,
+      message: "Cannot access this user's library",
+    });
+  });
+
+  it("should throw an fetch error if the achievement details request fails", async () => {
+    mockedAxios.get.mockRejectedValue({ response: { status: HTTP_RESPONSE_STATUS.SERVER_ERROR } });
+
+    const result = apiHandlerService.getAchievementsDetails(1151640);
+
+    await expect(result).rejects.toThrow(SteamApiError);
+    await expect(result).rejects.toMatchObject({
+      status: HTTP_RESPONSE_STATUS.SERVER_ERROR,
+      message: "Failed fetching SchemaForGame from SteamAPI",
+    });
   });
 });
