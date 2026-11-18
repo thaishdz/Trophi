@@ -31,11 +31,20 @@ jest.mock("../services/achievements/AchievementsService", () => ({
 }));
 jest.mock("../controllers/UserController", () => ({ getMe: jest.fn() }));
 
+const mockGetFollowed = jest.fn();
+const mockFollow = jest.fn();
+const mockUnfollow = jest.fn();
+jest.mock("../services/follows/FollowService", () => ({
+  __esModule: true,
+  default: jest.fn(() => ({ getFollowed: mockGetFollowed, follow: mockFollow, unfollow: mockUnfollow })),
+}));
+
 import router from "./index";
 import errorMiddleware from "../middlewares/error";
 import { SteamApiError } from "../exceptions/SteamApiError";
 
 const STEAM_ID = "76561198000000000";
+const USER_ID = "665f1c2e8a1b2c3d4e5f6a7b";
 const lockedData = { gameName: "Hades", totalGameAchievements: 49, achievements: [] };
 
 describe("API routes", () => {
@@ -44,7 +53,10 @@ describe("API routes", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, "error").mockImplementation(() => {});
-    mockAuth.mockImplementation((_req, _res, next) => next());
+    mockAuth.mockImplementation((req, _res, next) => {
+      req.user = { _id: USER_ID };
+      next();
+    });
     mockSteamId.mockImplementation((req, _res, next) => {
       req.steamId = STEAM_ID;
       next();
@@ -93,6 +105,54 @@ describe("API routes", () => {
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
+    });
+  });
+
+  describe("followed achievements", () => {
+    it("lists the followed achievements of a game for the session user", async () => {
+      mockGetFollowed.mockResolvedValue(["ACH_1"]);
+
+      const res = await request(app).get("/api/v1/follows/1145360");
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual({ achievements: ["ACH_1"] });
+      expect(mockGetFollowed).toHaveBeenCalledWith(USER_ID, 1145360);
+    });
+
+    it("follows an achievement", async () => {
+      mockFollow.mockResolvedValue(["ACH_1"]);
+
+      const res = await request(app).put("/api/v1/follows/1145360/ACH_1");
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual({ achievements: ["ACH_1"] });
+      expect(mockFollow).toHaveBeenCalledWith(USER_ID, 1145360, "ACH_1");
+    });
+
+    it("unfollows an achievement", async () => {
+      mockUnfollow.mockResolvedValue([]);
+
+      const res = await request(app).delete("/api/v1/follows/1145360/ACH_1");
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual({ achievements: [] });
+      expect(mockUnfollow).toHaveBeenCalledWith(USER_ID, 1145360, "ACH_1");
+    });
+
+    it("returns 400 when the game id is not a positive integer", async () => {
+      const res = await request(app).put("/api/v1/follows/abc/ACH_1");
+
+      expect(res.status).toBe(400);
+      expect(mockFollow).not.toHaveBeenCalled();
+    });
+
+    it("returns 401 when there is no session", async () => {
+      mockAuth.mockImplementation((_req, res) => res.status(401).json({ success: false }));
+
+      const res = await request(app).get("/api/v1/follows/1145360");
+
+      expect(res.status).toBe(401);
+      expect(mockGetFollowed).not.toHaveBeenCalled();
     });
   });
 });

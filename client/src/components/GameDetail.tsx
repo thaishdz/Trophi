@@ -1,18 +1,10 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { API_URL } from '../config'
+import { useGame } from '../hooks/useGame'
 import { useGamePalette } from '../hooks/useGamePalette'
+import { useFollowedAchievements } from '../hooks/useFollowedAchievements'
 import { progressColor } from '../lib/progress'
 import { summarize } from '../lib/searchHistory'
-import { GameData, Achievement } from '../types/game'
+import { Achievement } from '../types/game'
 import GameCover from './GameCover'
-
-async function fetchGame(gameId: number): Promise<GameData> {
-  const res = await fetch(`${API_URL}gameAchievements/${gameId}`, { credentials: 'include' })
-  const result = await res.json().catch(() => null)
-  if (!res.ok || !result?.success) throw new Error(result?.message || 'Could not load the achievements')
-  return result.data
-}
 
 function ProgressBar({ value, color }: { value: number; color: string }) {
   return (
@@ -70,21 +62,29 @@ function AchievementRow({ achievement, following, onToggle }: RowProps) {
   )
 }
 
+type ListProps = {
+  items: Achievement[]
+  followed: Set<string>
+  onToggle: (achievement: string) => void
+}
+
+function AchievementList({ items, followed, onToggle }: ListProps) {
+  return (
+    <ul className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+      {items.map((a) => (<AchievementRow key={a.value} achievement={a} following={followed.has(a.value)} onToggle={() => onToggle(a.value)} />))}
+    </ul>
+  )
+}
+
 function GameDetail({ gameId }: { gameId: number }) {
-  const { data: game, isPending, error } = useQuery({
-    queryKey: ['game', gameId],
-    queryFn: () => fetchGame(gameId),
-    staleTime: 5 * 60 * 1000, // same cooldown the server applies per (user, game)
-  })
+  const { data: game, isPending, error } = useGame(gameId)
   const palette = useGamePalette(game && summarize(game))
-  // UI only for now: it resets on reload until following is persisted (kanban #15)
-  const [following, setFollowing] = useState<Set<string>>(new Set())
-  const toggleFollow = (name: string) =>
-    setFollowing((prev) => {
-      const next = new Set(prev)
-      if (!next.delete(name)) next.add(name)
-      return next
-    })
+  const { followed, toggle, failed } = useFollowedAchievements(gameId)
+  // The locked achievements are split in two sections. A followed achievement may have been
+  // unlocked since, so only the ones still locked show up as followed.
+  const achievements = game?.achievements ?? []
+  const following = achievements.filter((a) => followed.has(a.value))
+  const pending = achievements.filter((a) => !followed.has(a.value))
 
   const total = game?.totalGameAchievements ?? 0
   const locked = game?.achievements.length ?? 0
@@ -138,7 +138,6 @@ function GameDetail({ gameId }: { gameId: number }) {
                     <ProgressBar value={pct} color={color} />
                     <div className="mt-6 grid grid-cols-2 gap-3">
                       <Stat label="Pendientes" value={locked} />
-                      <Stat label="Siguiendo" value={following.size} />
                     </div>
                   </div>
                 )}
@@ -146,17 +145,32 @@ function GameDetail({ gameId }: { gameId: number }) {
             </div>
           </section>
 
+          {failed && (
+            <p role="alert" className="mt-10 text-sm text-muted">No se pudo actualizar el seguimiento. Inténtalo de nuevo.</p>
+          )}
+
+          {locked > 0 && (
+            <section aria-labelledby="following-achievements" className="mt-12">
+              <h2 id="following-achievements" className="font-display text-3xl font-semibold">
+                Siguiendo <span className="text-muted">({following.length})</span>
+              </h2>
+              {following.length ? (
+                <AchievementList items={following} followed={followed} onToggle={toggle} />
+              ) : (
+                <p className="mt-3 text-muted">Sigue un logro pendiente y aparecerá aquí.</p>
+              )}
+            </section>
+          )}
+
           <section aria-labelledby="locked-achievements" className="mt-12">
             <h2 id="locked-achievements" className="font-display text-3xl font-semibold">
-              Logros pendientes <span className="text-muted">({locked})</span>
+              Logros pendientes <span className="text-muted">({pending.length})</span>
             </h2>
-            {locked ? (
-              <ul className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-                {game.achievements.map((a) => (<AchievementRow key={a.name} achievement={a} following={following.has(a.name)} onToggle={() => toggleFollow(a.name)} />))}
-              </ul>
+            {pending.length ? (
+              <AchievementList items={pending} followed={followed} onToggle={toggle} />
             ) : (
               <p className="mt-3 text-muted">
-                {total ? '¡Lo tienes todo! No queda ningún logro por desbloquear.' : 'Este juego no tiene logros.'}
+                {locked ? 'Estás siguiendo todos los logros pendientes.' : total ? '¡Lo tienes todo! No queda ningún logro por desbloquear.' : 'Este juego no tiene logros.'}
               </p>
             )}
           </section>
