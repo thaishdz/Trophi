@@ -34,7 +34,7 @@ function Sidebar() {
 
   return (
     <nav
-      aria-label="Main"
+      aria-label="Principal"
       className="fixed z-40 inset-x-0 top-0 h-14 sm:inset-y-0 sm:right-auto sm:h-auto sm:w-[72px] bg-panel border-b sm:border-b-0 sm:border-r border-line flex flex-row sm:flex-col items-center justify-center sm:justify-start gap-2 sm:py-6"
     >
       <NavItem href="/dashboard" label="Dashboard" active={!inLibrary && !inProfile}>
@@ -45,7 +45,7 @@ function Sidebar() {
         </svg>
       </NavItem>
 
-      <NavItem href="/games" label="Games library" active={inLibrary}>
+      <NavItem href="/games" label="Biblioteca" active={inLibrary}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
           <path d="M9.5 12a2 2 0 0 0-0.59-1.42l-1.5-1.5A2 2 0 0 06 8.5H1.5A1.5 1.5 0 0 00 10v4a1.5 1.5 0 0 01.5 1.5H6a2 2 0 0 01.41-0.59l1.5-1.5A2 2 0 0 09.5 12Z" />
           <path d="M22.5 8.5H18a2 2 0 0 0-1.41 0.58l-1.5 1.5a2 2 0 0 00 2.83l1.5 1.5a2 2 0 0 01.41 0.59h4.5A1.5 1.5 0 0 024 14v-4a1.5 1.5 0 0 0-1.5-1.5Z" />
