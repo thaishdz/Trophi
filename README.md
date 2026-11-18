@@ -4,7 +4,7 @@ All your Steam achievements in one place. Sign in with Steam, search your librar
 
 ![TrophyLogger dashboard](docs/screenshots/2026-11-18.png)
 
-> **Status:** early development. Steam login, library search and locked achievements work. There is no login button in the UI yet, so you sign in by visiting `/auth/steam`.
+> **Status:** early development. You can sign in with Steam, search your library, follow locked achievements and save games.
 
 **Stack:** React 19, Vite, Tailwind 4 and TanStack Query on the client; Express, TypeScript and MongoDB on the server. Everything runs with Docker Compose.
 
