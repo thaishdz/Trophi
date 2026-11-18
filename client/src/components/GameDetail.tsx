@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { API_URL } from '../config'
 import { useGamePalette } from '../hooks/useGamePalette'
@@ -33,19 +34,38 @@ function Stat({ label, value }: { label: string; value: string | number }) {
   )
 }
 
-function AchievementRow({ achievement }: { achievement: Achievement }) {
+type RowProps = {
+  achievement: Achievement
+  following: boolean
+  onToggle: () => void
+}
+
+function AchievementRow({ achievement, following, onToggle }: RowProps) {
   return (
     <li className="flex items-center gap-4 rounded-2xl border border-(--p-line) bg-(--p-surface) p-3.5">
       <img
         src={achievement.icon} alt="" loading="lazy"
         className="h-14 w-14 shrink-0 rounded-xl bg-black/40 object-cover grayscale opacity-80"
       />
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="font-semibold leading-tight">{achievement.name}</p>
         <p className="mt-0.5 text-sm text-muted text-pretty">
           {achievement.description || 'Logro oculto'}
         </p>
       </div>
+      <button
+        type="button"
+        aria-pressed={following}
+        aria-label={`${following ? 'Dejar de seguir' : 'Seguir'} ${achievement.name}`}
+        onClick={onToggle}
+        className={`shrink-0 cursor-pointer rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors ${
+          following
+            ? 'border-(--p-accent) bg-(--p-accent) text-black'
+            : 'border-(--p-line) text-text hover:border-(--p-accent) hover:text-(--p-accent)'
+        }`}
+      >
+        {following ? 'Siguiendo' : 'Seguir'}
+      </button>
     </li>
   )
 }
@@ -57,6 +77,14 @@ function GameDetail({ gameId }: { gameId: number }) {
     staleTime: 5 * 60 * 1000, // same cooldown the server applies per (user, game)
   })
   const palette = useGamePalette(game && summarize(game))
+  // UI only for now: it resets on reload until following is persisted (kanban #15)
+  const [following, setFollowing] = useState<Set<string>>(new Set())
+  const toggleFollow = (name: string) =>
+    setFollowing((prev) => {
+      const next = new Set(prev)
+      if (!next.delete(name)) next.add(name)
+      return next
+    })
 
   const total = game?.totalGameAchievements ?? 0
   const locked = game?.achievements.length ?? 0
@@ -98,13 +126,7 @@ function GameDetail({ gameId }: { gameId: number }) {
             <div className="flex flex-wrap items-end gap-x-10 gap-y-6 p-6 sm:p-12">
               <GameCover game={summarize(game)} className="aspect-[2/3] w-36 rounded-2xl shadow-2xl shadow-black/50 sm:w-56" />
               <div className="min-w-0 flex-1 basis-72">
-                <span
-                  className="inline-block rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-widest"
-                  style={{ color, borderColor: color }}
-                >
-                  {!total ? 'Sin logros' : pct === 100 ? 'Completado' : 'En progreso'}
-                </span>
-                <h1 className="mt-3 font-display text-5xl font-bold leading-[0.92] tracking-tight text-balance sm:text-7xl">
+                <h1 className="font-display text-5xl font-bold leading-[0.92] tracking-tight text-balance sm:text-7xl">
                   {game.gameName}
                 </h1>
                 {total > 0 && (
@@ -114,10 +136,9 @@ function GameDetail({ gameId }: { gameId: number }) {
                       <span className="text-muted">{unlocked} de {total}</span>
                     </div>
                     <ProgressBar value={pct} color={color} />
-                    <div className="mt-6 grid grid-cols-3 gap-3">
-                      <Stat label="Conseguidos" value={unlocked} />
+                    <div className="mt-6 grid grid-cols-2 gap-3">
                       <Stat label="Pendientes" value={locked} />
-                      <Stat label="Total" value={total} />
+                      <Stat label="Siguiendo" value={following.size} />
                     </div>
                   </div>
                 )}
@@ -131,7 +152,7 @@ function GameDetail({ gameId }: { gameId: number }) {
             </h2>
             {locked ? (
               <ul className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-                {game.achievements.map((a) => (<AchievementRow key={a.name} achievement={a} />))}
+                {game.achievements.map((a) => (<AchievementRow key={a.name} achievement={a} following={following.has(a.name)} onToggle={() => toggleFollow(a.name)} />))}
               </ul>
             ) : (
               <p className="mt-3 text-muted">
