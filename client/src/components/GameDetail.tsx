@@ -1,6 +1,5 @@
 import { useGame } from '../hooks/useGame'
-import { useTrackGame } from '../hooks/useTrackedGames'
-import { useGamePalette } from '../hooks/useGamePalette'
+import TintedPage from './TintedPage'
 import { useFollowedAchievements } from '../hooks/useFollowedAchievements'
 import { progressColor } from '../lib/progress'
 import { summarize } from '../lib/searchHistory'
@@ -79,9 +78,7 @@ function AchievementList({ items, followed, onToggle }: ListProps) {
 
 function GameDetail({ gameId }: { gameId: number }) {
   const { data: game, isPending, error } = useGame(gameId)
-  const palette = useGamePalette(game && summarize(game))
   const { followed, toggle, failed } = useFollowedAchievements(gameId)
-  const { tracked, toggle: toggleTrack, failed: trackFailed } = useTrackGame(gameId)
   // The locked achievements are split in two sections. A followed achievement may have been
   // unlocked since, so only the ones still locked show up as followed.
   const achievements = game?.achievements ?? []
@@ -96,15 +93,7 @@ function GameDetail({ gameId }: { gameId: number }) {
   const headerImage = game?.coverFallback ?? game?.cover
 
   return (
-    <div
-      className="text-text"
-      style={{ '--p-line': palette.line, '--p-surface': palette.surface, '--p-accent': palette.accent } as React.CSSProperties}
-    >
-      <div
-        aria-hidden="true" className="fixed inset-0 -z-10"
-        style={{ background: `radial-gradient(ellipse 80% 55% at 70% 0%, ${palette.glow}, transparent 70%), ${palette.bg}` }}
-      />
-
+    <TintedPage game={game && summarize(game)}>
       <a href="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-text">
         <span aria-hidden="true">←</span> Volver al dashboard
       </a>
@@ -131,21 +120,6 @@ function GameDetail({ gameId }: { gameId: number }) {
                 <h1 className="font-display text-5xl font-bold leading-[0.92] tracking-tight text-balance sm:text-7xl">
                   {game.gameName}
                 </h1>
-                <button
-                  type="button"
-                  aria-pressed={tracked}
-                  onClick={() => toggleTrack({ gameId, gameName: game.gameName, cover: game.cover, coverFallback: game.coverFallback })}
-                  className={`mt-5 cursor-pointer rounded-full border px-5 py-2 text-sm font-semibold transition-colors ${
-                    tracked
-                      ? 'border-(--p-accent) bg-(--p-accent) text-black'
-                      : 'border-(--p-line) text-text hover:border-(--p-accent) hover:text-(--p-accent)'
-                  }`}
-                >
-                  {tracked ? 'Trackeando' : 'Trackear juego'}
-                </button>
-                {trackFailed && (
-                  <p role="alert" className="mt-2 text-sm text-muted">No se pudo actualizar el tracking del juego. Inténtalo de nuevo.</p>
-                )}
                 {total > 0 && (
                   <div className="mt-6 max-w-xl">
                     <div className="mb-2 flex items-baseline justify-between">
@@ -193,7 +167,7 @@ function GameDetail({ gameId }: { gameId: number }) {
           </section>
         </>
       )}
-    </div>
+    </TintedPage>
   )
 }
 

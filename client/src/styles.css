@@ -53,12 +53,12 @@ body {
     box-shadow: 0 0 0 5px rgb(255 255 255 / 0.6);
 }
 
-/* TODO(#10): remove these two when GameCard drops the neo-brutalist look */
-.neo-shadow {
-    box-shadow: 4px 4px 0 0 #111;
+/* Scrolling inside a modal dialog or over its backdrop must not scroll the page behind it */
+dialog:modal {
+    overscroll-behavior: contain;
 }
 
-.neo-press:active {
-    transform: translate(4px, 4px);
-    box-shadow: 0 0 0 0 #111;
+dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
 }

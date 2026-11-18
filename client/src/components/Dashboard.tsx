@@ -1,10 +1,7 @@
-import { useState } from 'react'
-import ErrorModal from './ErrorModal'
 import GameCover from './GameCover'
-import SearchBox from './SearchBox'
 import { useGame } from '../hooks/useGame'
 import { useFollowedList } from '../hooks/useFollowedAchievements'
-import { useGamePalette } from '../hooks/useGamePalette'
+import TintedPage from './TintedPage'
 import { progressColor } from '../lib/progress'
 import { SearchEntry, useSearchHistory } from '../lib/searchHistory'
 
@@ -145,32 +142,14 @@ function SearchTile({ entry }: { entry: SearchEntry }) {
 
 function Dashboard() {
   const history = useSearchHistory()
-  const [error, setError] = useState<string | null>(null)
   const current = history[0]
-  const palette = useGamePalette(current?.game)
   const latest = history.slice(1)
 
   return (
-    <div
-      className="text-text"
-      style={{
-        '--p-line': palette.line,
-        '--p-surface': palette.surface,
-        '--p-accent': palette.accent,
-      } as React.CSSProperties}
-    >
-      {/* Full-viewport tint behind the page; the sidebar sits above it */}
-      <div
-        aria-hidden="true"
-        className="fixed inset-0 -z-10"
-        style={{ background: `radial-gradient(ellipse 80% 55% at 70% 0%, ${palette.glow}, transparent 70%), ${palette.bg}` }}
-      />
-
-      <header className="mt-2 sm:mt-4 flex flex-wrap items-center gap-x-3 gap-y-4 sm:grid sm:grid-cols-[1fr_minmax(0,36rem)_1fr]">
-        <h1 className="order-1 flex-1 font-display text-4xl sm:order-none sm:text-5xl font-bold tracking-tight">Dashboard</h1>
-        <SearchBox className="order-3 w-full sm:order-none" onSearchResults={() => {}} onError={setError} />
+    <TintedPage game={current?.game}>
+      <header className="mt-2 sm:mt-4">
+        <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight">Dashboard</h1>
       </header>
-      <ErrorModal message={error} onClose={() => setError(null)} />
 
       <div className="mt-10 sm:mt-14 flex flex-col gap-12">
         <CurrentGame entry={current} />
@@ -186,7 +165,7 @@ function Dashboard() {
           )}
         </section>
       </div>
-    </div>
+    </TintedPage>
   )
 }
 

@@ -32,18 +32,18 @@ function SearchBox({ className = 'w-full sm:w-80', ...props }: Props) {
         if (games.length) recordSearch(query, games[0])
         props.onSearchResults(games)
       })
-      .catch(() => props.onError('Could not connect to the server'))
+      .catch(() => props.onError('No se pudo conectar con el servidor'))
       .finally(() => setLoading(false))
   }
 
   return (
     <div className={className}>
       <form onSubmit={handleSearch} role="search" className="relative w-full">
-        {/* The icon is the submit button, so Enter and a click both search */}
+        {/* The icon is the submit button, so Enter and a click both search. z-10 keeps it above the input, whose backdrop blur would otherwise paint over it */}
         <button
-          className={`absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full text-muted hover:text-text ${loading ? 'animate-pulse opacity-50 cursor-wait' : 'cursor-pointer'}`}
+          className={`absolute left-2 top-1/2 z-10 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full text-text/70 hover:text-text ${loading ? 'animate-pulse opacity-50 cursor-wait' : 'cursor-pointer'}`}
           type="submit"
-          aria-label="Search"
+          aria-label="Buscar"
           disabled={loading}>
           <svg
             className="w-5 h-5"
@@ -56,10 +56,10 @@ function SearchBox({ className = 'w-full sm:w-80', ...props }: Props) {
           </svg>
         </button>
         <input
-          className="w-full h-12 pl-12 pr-5 rounded-full bg-[var(--p-surface,rgb(0_0_0/0.35))] border border-[var(--p-line,var(--color-line))] text-text placeholder:text-muted backdrop-blur-sm focus:border-[var(--p-accent,var(--color-gold))] focus:outline-none focus:ring-1 focus:ring-[var(--p-accent,var(--color-gold))]"
+          className="w-full h-12 pl-12 pr-5 rounded-full bg-[color-mix(in_srgb,var(--p-surface,rgb(0_0_0/0.35))_55%,transparent)] border border-[var(--p-line,var(--color-line))] text-text placeholder:text-muted backdrop-blur-sm focus:border-[var(--p-accent,var(--color-gold))] focus:outline-none focus:ring-1 focus:ring-[var(--p-accent,var(--color-gold))]"
           type="search"
-          aria-label="Search your library"
-          placeholder={loading ? 'Buscando…' : 'Busca un juego, ej. Hades'}
+          aria-label="Buscar en tu biblioteca"
+          placeholder={loading ? 'Buscando…' : 'Buscar juego…'}
           value={query}
           aria-busy={loading}
           onChange={(e) => setQuery(e.target.value)}/>
