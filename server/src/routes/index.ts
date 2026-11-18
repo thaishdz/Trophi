@@ -6,6 +6,7 @@ import SteamService from "../services/steam/SteamService";
 import GameService from "../services/games/GameService";
 import AchievementsService from "../services/achievements/AchievementsService";
 import { getSteamId } from "../middlewares/steamId";
+import { getMe } from "../controllers/UserController";
 
 const router = Router();
 
@@ -18,6 +19,8 @@ const gamesController = new GameController(
   achievementsService
 );
 
+// The client uses it to know if there is a session (401 if there is none)
+router.get(`/me`, ensureAuthenticated, getMe);
 router.get(
   `/search`,
   ensureAuthenticated,
