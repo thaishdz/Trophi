@@ -21,8 +21,9 @@ describe("AchievementsService --- Steam API", () => {
     achievementsService = new AchievementsService(steamServiceMock);
   });
 
-  //TODO: Mejorar este test para que dé la info de los achievements
   it("should combine unachieved stats and achievement details into locked achievements data", async () => {
+    const gameId = 1;
+    const steamId = "76561198000000000";
     steamServiceMock.getPlayerAchievements.mockResolvedValue(
       gameAchieveResponseMock,
     );
@@ -30,17 +31,32 @@ describe("AchievementsService --- Steam API", () => {
       .spyOn(achievementsService, "getAchievementsDetails")
       .mockResolvedValue(mockAchievementsDetails);
 
+    // Solo ACHIEVEMENT_56 está sin desbloquear; ACHIEVEMENT_3 ya está conseguido y se descarta
     const expectResult = {
       gameName: "Horizon Zero Dawn",
-      playerAchievementsData: [],
-      totalLocked: 0,
+      totalGameAchievements: 2,
+      achievements: [
+        {
+          name: "You're the best",
+          value: "ACHIEVEMENT_56",
+          description: "Beat the game on hard difficulty",
+          icon: "https://icon-gray.png",
+          achieved: 0,
+        },
+      ],
     };
 
-    const result =
-      await achievementsService.getLockedAchievementsDataForPlayer(1);
+    const result = await achievementsService.getLockedAchievementsDataForPlayer(
+      gameId,
+      steamId,
+    );
 
     expect(result).toEqual(expectResult);
-    expect(spyAchievementsDetails).toHaveBeenCalled();
+    expect(steamServiceMock.getPlayerAchievements).toHaveBeenCalledWith(
+      gameId,
+      steamId,
+    );
+    expect(spyAchievementsDetails).toHaveBeenCalledWith(gameId);
   });
 
   it("should return the details of each achievement", async () => {
