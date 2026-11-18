@@ -1,4 +1,5 @@
 import { useGame } from '../hooks/useGame'
+import { useTrackGame } from '../hooks/useTrackedGames'
 import { useGamePalette } from '../hooks/useGamePalette'
 import { useFollowedAchievements } from '../hooks/useFollowedAchievements'
 import { progressColor } from '../lib/progress'
@@ -80,6 +81,7 @@ function GameDetail({ gameId }: { gameId: number }) {
   const { data: game, isPending, error } = useGame(gameId)
   const palette = useGamePalette(game && summarize(game))
   const { followed, toggle, failed } = useFollowedAchievements(gameId)
+  const { tracked, toggle: toggleTrack, failed: trackFailed } = useTrackGame(gameId)
   // The locked achievements are split in two sections. A followed achievement may have been
   // unlocked since, so only the ones still locked show up as followed.
   const achievements = game?.achievements ?? []
@@ -129,6 +131,21 @@ function GameDetail({ gameId }: { gameId: number }) {
                 <h1 className="font-display text-5xl font-bold leading-[0.92] tracking-tight text-balance sm:text-7xl">
                   {game.gameName}
                 </h1>
+                <button
+                  type="button"
+                  aria-pressed={tracked}
+                  onClick={() => toggleTrack({ gameId, gameName: game.gameName, cover: game.cover, coverFallback: game.coverFallback })}
+                  className={`mt-5 cursor-pointer rounded-full border px-5 py-2 text-sm font-semibold transition-colors ${
+                    tracked
+                      ? 'border-(--p-accent) bg-(--p-accent) text-black'
+                      : 'border-(--p-line) text-text hover:border-(--p-accent) hover:text-(--p-accent)'
+                  }`}
+                >
+                  {tracked ? 'Trackeando' : 'Trackear juego'}
+                </button>
+                {trackFailed && (
+                  <p role="alert" className="mt-2 text-sm text-muted">No se pudo actualizar el tracking del juego. Inténtalo de nuevo.</p>
+                )}
                 {total > 0 && (
                   <div className="mt-6 max-w-xl">
                     <div className="mb-2 flex items-baseline justify-between">
