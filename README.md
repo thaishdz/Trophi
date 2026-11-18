@@ -34,7 +34,7 @@ All your Steam achievements in one place. Sign in with Steam, search your librar
 3. Create `client/.env`:
 
    ```sh
-   VITE_API_URL=http://localhost:8000
+   VITE_API_URL=http://localhost:8000/api/v1/
    ```
 
 4. Start everything:
