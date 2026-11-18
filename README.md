@@ -2,7 +2,9 @@
 
 All your Steam achievements in one place. Sign in with Steam, search your library and see which achievements you still have locked in each game.
 
-![1746545448650](https://github.com/user-attachments/assets/4702544b-9ddb-49a4-8b64-1f7fc3b79780)
+![TrophyLogger dashboard](docs/screenshots/2026-11-18.png)
+
+*Screenshot with mocked data: made-up progress and achievements on top of real game covers.*
 
 > **Status:** early development (v0). Steam login, library search and locked achievements work. There is no login button in the UI yet, so you sign in by visiting `/auth/steam`.
 
@@ -46,6 +48,13 @@ All your Steam achievements in one place. Sign in with Steam, search your librar
 5. Open [http://localhost:8000/auth/steam](http://localhost:8000/auth/steam) to sign in, then use the app at [http://localhost:3000](http://localhost:3000).
 
 Stop it with `docker compose down`.
+
+## Screenshot history
+
+Older screenshots are kept in [`docs/screenshots/`](docs/screenshots/), named by date:
+
+- [2026-11-18](docs/screenshots/2026-11-18.png): the dashboard (mocked data).
+- [2025-05-06](docs/screenshots/2025-05-06.jpg): the first version, the Games Library page.
 
 ## Docs
 
