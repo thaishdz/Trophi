@@ -1,21 +1,59 @@
 @import "tailwindcss";
 
 /**
- * Custom styles for the TrophyFront application.
+ * Design plan (#14): dark and cinematic.
  *
- * Background ------> 
- * Botones    ------> #E9B872
- * Locked Achievements ------> #A63D40
- * Achieved ----> #90A959
- * Misc -----> #6494AA
+ * Subject: a Steam player checking which achievements are still locked.
+ * Direction: a screening room. Blue-black ink surfaces, vertical covers as the
+ * main visual element, and a single warm light (trophy gold) reserved for the
+ * primary action and the active state. Teal means progress, rose means locked.
+ * The login view carries the boldness (a poster-style title under a soft light);
+ * everything else stays quiet.
+ *
+ * Type: Barlow Condensed for titles (film-credit feel), Instrument Sans for text.
  */
 
-body {
-    font-family: var(--font-sans);
-    font-weight: medium;
+@theme {
+    --color-ink: #d98c5f;       /* page background (muted orange) */
+    --color-ink-text: #140a02;  /* text drawn directly on the orange page */
+    --color-panel: #141110;     /* sidebar, modals */
+    --color-raised: #1f1a17;    /* inputs, cards */
+    --color-line: #332b25;      /* borders and dividers */
+    --color-text: #f2ebe3;      /* main text (warm white) */
+    --color-muted: #a39a90;     /* secondary text */
+    --color-gold: #ff7a1a;      /* primary action, active state (orange) */
+    --color-gold-ink: #140a02;  /* text on gold */
+    --color-teal: #4fc3b0;      /* progress, achieved */
+    --color-rose: #e5484d;      /* locked achievements */
+
+    --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+    --font-sans: "Instrument Sans", system-ui, sans-serif;
 }
 
-/* Efecto neobrutalista: borde grueso + sombra sólida sin difuminado */
+:root {
+    /* Dark only: tells the browser to theme scrollbars and form controls */
+    color-scheme: dark;
+    accent-color: var(--color-ink-text);
+    scrollbar-color: var(--color-line) var(--color-ink);
+}
+
+body {
+    background-color: var(--color-ink);
+    color: var(--color-ink-text);
+    font-family: var(--font-sans);
+}
+
+::selection {
+    background-color: color-mix(in srgb, var(--color-ink-text) 30%, transparent);
+}
+
+:focus-visible {
+    outline: 2px solid var(--color-ink-text);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px rgb(255 255 255 / 0.6);
+}
+
+/* TODO(#10): remove these two when GameCard drops the neo-brutalist look */
 .neo-shadow {
     box-shadow: 4px 4px 0 0 #111;
 }
