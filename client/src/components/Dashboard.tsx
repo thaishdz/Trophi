@@ -2,7 +2,6 @@ import { useState } from 'react'
 import ErrorModal from './ErrorModal'
 import GameCover from './GameCover'
 import SearchBox from './SearchBox'
-import UserAvatar from './UserAvatar'
 import { useGamePalette } from '../hooks/useGamePalette'
 import { progressColor } from '../lib/progress'
 import { SearchEntry, useSearchHistory } from '../lib/searchHistory'
@@ -132,12 +131,9 @@ function Dashboard() {
         style={{ background: `radial-gradient(ellipse 80% 55% at 70% 0%, ${palette.glow}, transparent 70%), ${palette.bg}` }}
       />
 
-      <header className="mt-4 sm:mt-10 flex flex-wrap items-center gap-x-3 gap-y-4 sm:grid sm:grid-cols-[1fr_minmax(0,36rem)_1fr]">
+      <header className="mt-2 sm:mt-4 flex flex-wrap items-center gap-x-3 gap-y-4 sm:grid sm:grid-cols-[1fr_minmax(0,36rem)_1fr]">
         <h1 className="order-1 flex-1 font-display text-4xl sm:order-none sm:text-5xl font-bold tracking-tight">Dashboard</h1>
         <SearchBox className="order-3 w-full sm:order-none" onSearchResults={() => {}} onError={setError} />
-        <div className="order-2 sm:order-none sm:justify-self-end">
-          <UserAvatar />
-        </div>
       </header>
       <ErrorModal message={error} onClose={() => setError(null)} />
 

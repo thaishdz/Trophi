@@ -32,7 +32,7 @@ function SearchBox({ className = 'w-full sm:w-80', ...props }: Props) {
         if (games.length) recordSearch(query, games[0])
         props.onSearchResults(games)
       })
-      .catch(() => props.onError('No se pudo conectar con el servidor'))
+      .catch(() => props.onError('Could not connect to the server'))
       .finally(() => setLoading(false))
   }
 

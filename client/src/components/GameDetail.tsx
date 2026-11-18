@@ -9,7 +9,7 @@ import GameCover from './GameCover'
 async function fetchGame(gameId: number): Promise<GameData> {
   const res = await fetch(`${API_URL}gameAchievements/${gameId}`, { credentials: 'include' })
   const result = await res.json().catch(() => null)
-  if (!res.ok || !result?.success) throw new Error(result?.message || 'No se pudieron cargar los logros')
+  if (!res.ok || !result?.success) throw new Error(result?.message || 'Could not load the achievements')
   return result.data
 }
 
@@ -26,9 +26,9 @@ function ProgressBar({ value, color }: { value: number; color: string }) {
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border border-(--p-line) bg-(--p-surface) px-5 py-4">
+    <div className="rounded-2xl border border-(--p-line) bg-black/30 px-4 py-3">
       <p className="text-xs font-semibold uppercase tracking-widest text-muted">{label}</p>
-      <p className="mt-1 font-display text-4xl font-bold tabular-nums">{value}</p>
+      <p className="mt-0.5 font-display text-3xl font-bold tabular-nums">{value}</p>
     </div>
   )
 }
@@ -75,7 +75,7 @@ function GameDetail({ gameId }: { gameId: number }) {
         style={{ background: `radial-gradient(ellipse 80% 55% at 70% 0%, ${palette.glow}, transparent 70%), ${palette.bg}` }}
       />
 
-      <a href="/dashboard" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-text sm:mt-10">
+      <a href="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-text">
         <span aria-hidden="true">←</span> Volver al dashboard
       </a>
 
@@ -108,25 +108,22 @@ function GameDetail({ gameId }: { gameId: number }) {
                   {game.gameName}
                 </h1>
                 {total > 0 && (
-                  <div className="mt-6 max-w-md">
+                  <div className="mt-6 max-w-xl">
                     <div className="mb-2 flex items-baseline justify-between">
                       <span className="font-display text-5xl font-bold tabular-nums" style={{ color }}>{pct}%</span>
                       <span className="text-muted">{unlocked} de {total}</span>
                     </div>
                     <ProgressBar value={pct} color={color} />
+                    <div className="mt-6 grid grid-cols-3 gap-3">
+                      <Stat label="Conseguidos" value={unlocked} />
+                      <Stat label="Pendientes" value={locked} />
+                      <Stat label="Total" value={total} />
+                    </div>
                   </div>
                 )}
               </div>
             </div>
           </section>
-
-          {total > 0 && (
-            <div className="mt-6 grid grid-cols-3 gap-3 sm:max-w-xl">
-              <Stat label="Conseguidos" value={unlocked} />
-              <Stat label="Pendientes" value={locked} />
-              <Stat label="Total" value={total} />
-            </div>
-          )}
 
           <section aria-labelledby="locked-achievements" className="mt-12">
             <h2 id="locked-achievements" className="font-display text-3xl font-semibold">
