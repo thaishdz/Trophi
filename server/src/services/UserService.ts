@@ -13,9 +13,9 @@ export class UserService {
     const authMethodDocument = await AuthMethod.findOne({
       userId: user._id
     })
-    if (!authMethodDocument) {
+    if (!authMethodDocument?.steamId) {
       throw new HttpException(HTTP_RESPONSE_STATUS.NOT_FOUND, "Authmethod not found")
     }
-      return authMethodDocument.steamId;
+    return authMethodDocument.steamId;
   }
 }
