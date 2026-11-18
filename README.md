@@ -1,31 +1,52 @@
-
 # 🏆 TrophyLogger (v0)
 
-TrophyLogger centraliza tus logros de Steam en un solo lugar.
+All your Steam achievements in one place. Sign in with Steam, search your library and see which achievements you still have locked in each game.
 
 ![1746545448650](https://github.com/user-attachments/assets/4702544b-9ddb-49a4-8b64-1f7fc3b79780)
 
+> **Status:** early development (v0). Steam login, library search and locked achievements work. There is no login button in the UI yet, so you sign in by visiting `/auth/steam`.
 
-## Setup
+**Stack:** React 19, Vite, Tailwind 4 and TanStack Query on the client; Express, TypeScript and MongoDB on the server. Everything runs with Docker Compose.
 
-### Prerequisites
+## Run it locally
 
-- [Docker](https://docs.docker.com/get-docker/) with Compose v2 (`docker compose version`)
-- `.env` file at `server/src/config/.env`
+**Requirements:** [Docker](https://docs.docker.com/get-docker/) with Compose v2 and a [Steam Web API key](https://steamcommunity.com/dev/apikey).
 
-### Run
+1. Clone the repo:
 
-```sh
-docker compose up
-```
+   ```sh
+   git clone git@github.com:thaishdz/TrophyLogger.git
+   cd TrophyLogger
+   ```
 
-### Stop
+2. Create `server/src/config/.env`:
 
-```sh
-docker compose down
-```
+   ```sh
+   NODE_ENV=development
+   PORT=8000
+   DATABASE_URI=mongodb://database:27017/<db-name>?replicaSet=rs0
+   STEAM_API_KEY=<your-steam-api-key>
+   FRONTEND_URL=http://localhost:3000
+   BACKEND_URL=http://localhost:8000
+   SESSION_SECRET=<any-random-string>
+   ```
 
-### Access
+3. Create `client/.env`:
 
-- API: [http://localhost:8000](http://localhost:8000)
-- Frontend: [http://localhost:3000](http://localhost:3000)
+   ```sh
+   VITE_API_URL=http://localhost:8000
+   ```
+
+4. Start everything:
+
+   ```sh
+   docker compose up
+   ```
+
+5. Open [http://localhost:8000/auth/steam](http://localhost:8000/auth/steam) to sign in, then use the app at [http://localhost:3000](http://localhost:3000).
+
+Stop it with `docker compose down`.
+
+## Docs
+
+Architecture decisions are in [`docs/adr/`](docs/adr/) and the login flow is in [`docs/flows/steam-auth-flow.md`](docs/flows/steam-auth-flow.md).
