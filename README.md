@@ -6,7 +6,11 @@ All your Steam achievements in one place. Sign in with Steam, search your librar
 
 > **Status:** early development. You can sign in with Steam, search your library, follow locked achievements and save games.
 
+## About the code
+
 **Stack:** React 19, Vite, Tailwind 4 and TanStack Query on the client; Express, TypeScript and MongoDB on the server. Everything runs with Docker Compose.
+
+Roughly half of the current code, most of the client and a large part of the tests, was written with Claude Code. The architecture, the product decisions, the reviews and the ADRs are the author's.
 
 ## Run it locally
 
