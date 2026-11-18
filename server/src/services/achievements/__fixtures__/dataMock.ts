@@ -5,10 +5,16 @@ import { AchievementDetails, AchievementDetailsResponse, GameAchievementsRespons
 export const gameAchieveResponseMock: ApiResponse<GameAchievementsResponse> = {
     data: {
         gameName: "Horizon Zero Dawn",
+        totalGameAchievements: 2,
         achievements: [
             {
-                apiname: "NEW_ACHIEVEMENT_5_2",
+                apiname: "ACHIEVEMENT_56",
                 achieved: 0,
+                unlocktime: 0
+            },
+            {
+                apiname: "ACHIEVEMENT_3",
+                achieved: 1,
                 unlocktime: 1692438616
             }
         ]
