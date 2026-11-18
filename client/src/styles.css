@@ -34,7 +34,7 @@
     /* Dark only: tells the browser to theme scrollbars and form controls */
     color-scheme: dark;
     accent-color: var(--color-ink-text);
-    scrollbar-color: var(--color-line) var(--color-ink);
+    scrollbar-color: var(--color-line) var(--color-panel);
 }
 
 body {

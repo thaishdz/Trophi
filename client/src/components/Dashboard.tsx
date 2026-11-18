@@ -14,7 +14,7 @@ function ProgressRing({ value }: { value: number }) {
   const radius = 44
   const circumference = 2 * Math.PI * radius
   return (
-    <div className="relative w-32 h-32 shrink-0" role="img" aria-label={`${value}% completado`}>
+    <div className="relative w-36 h-36 sm:w-48 sm:h-48 shrink-0" role="img" aria-label={`${value}% completado`}>
       <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
         <circle cx="50" cy="50" r={radius} fill="none" stroke="var(--p-line)" strokeWidth="8" />
         <circle
@@ -22,7 +22,7 @@ function ProgressRing({ value }: { value: number }) {
           strokeDasharray={circumference} strokeDashoffset={circumference * (1 - value / 100)}
         />
       </svg>
-      <span className="absolute inset-0 grid place-items-center font-display text-4xl font-bold" style={{ color }}>{value}%</span>
+      <span className="absolute inset-0 grid place-items-center font-display text-5xl sm:text-6xl font-bold" style={{ color }}>{value}%</span>
     </div>
   )
 }
@@ -54,8 +54,8 @@ function CurrentGame({ entry }: { entry: SearchEntry | undefined }) {
           className="absolute inset-y-0 right-0 -z-10 h-full w-full sm:w-3/5 object-cover opacity-40 [mask-image:linear-gradient(to_left,black,transparent)]"
         />
       )}
-      <div className="flex flex-wrap items-center gap-x-8 gap-y-6 p-5 sm:p-8">
-        <GameCover game={game} className="w-28 sm:w-36 aspect-[2/3] rounded-2xl shadow-2xl shadow-black/50" />
+      <div className="flex flex-wrap items-center gap-x-10 gap-y-6 p-6 sm:p-12">
+        <GameCover game={game} className="w-36 sm:w-56 aspect-[2/3] rounded-2xl shadow-2xl shadow-black/50" />
         <div className="min-w-0 flex-1 basis-60">
           <span
             className="inline-block rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-widest"
@@ -63,10 +63,10 @@ function CurrentGame({ entry }: { entry: SearchEntry | undefined }) {
           >
             {pct === 100 ? 'Completado' : 'En progreso'}
           </span>
-          <h2 className="mt-3 font-display text-5xl sm:text-7xl font-bold leading-[0.95] tracking-tight text-balance">
+          <h2 className="mt-3 font-display text-6xl sm:text-8xl font-bold leading-[0.92] tracking-tight text-balance">
             {game.gameName}
           </h2>
-          <p className="mt-3 text-muted">
+          <p className="mt-4 text-lg text-muted">
             {game.total ? `${game.unlocked} de ${game.total} logros desbloqueados` : 'Este juego no tiene logros'}
           </p>
         </div>
@@ -80,7 +80,7 @@ function PercentPill({ value }: { value: number }) {
   const color = progressColor(value)
   return (
     <span
-      className="absolute right-3 top-3 rounded-full border bg-black/60 px-2.5 py-1 text-sm font-semibold tabular-nums backdrop-blur-sm"
+      className="absolute right-2.5 top-2.5 rounded-full border bg-black/60 px-2.5 py-1 text-sm font-semibold tabular-nums backdrop-blur-sm"
       style={{ color, borderColor: color }}
     >
       {value}%
@@ -94,13 +94,13 @@ function SearchTile({ entry }: { entry: SearchEntry }) {
     <button
       type="button"
       onClick={() => promoteSearch(game.gameId)}
-      className="group relative isolate aspect-[3/4] overflow-hidden rounded-3xl border border-(--p-line) bg-(--p-surface) text-left cursor-pointer"
+      className="group relative isolate aspect-[3/4] overflow-hidden rounded-2xl border border-(--p-line) bg-(--p-surface) text-left cursor-pointer"
     >
       <GameCover game={game} className="absolute inset-0 -z-10 h-full w-full transition-transform duration-300 group-hover:scale-105" />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
       {game.total > 0 && <PercentPill value={percent(game.unlocked, game.total)} />}
-      <div className="absolute inset-x-0 bottom-0 p-4">
-        <p className="font-display text-2xl font-semibold leading-tight">{game.gameName}</p>
+      <div className="absolute inset-x-0 bottom-0 p-3.5">
+        <p className="font-display text-xl font-semibold leading-tight line-clamp-2">{game.gameName}</p>
       </div>
     </button>
   )
@@ -129,11 +129,12 @@ function Dashboard() {
         style={{ background: `radial-gradient(ellipse 80% 55% at 70% 0%, ${palette.glow}, transparent 70%), ${palette.bg}` }}
       />
 
-      <h1 className="sr-only">Dashboard</h1>
-      <header className="mt-4 sm:mt-10 flex items-center gap-3">
-        <div aria-hidden="true" className="hidden sm:block w-12 shrink-0" /> {/* balances the avatar so the search stays centered */}
-        <SearchBox className="mx-auto w-full max-w-xl" onSearchResults={() => {}} onError={setError} />
-        <UserAvatar />
+      <header className="mt-4 sm:mt-10 flex flex-wrap items-center gap-x-3 gap-y-4 sm:grid sm:grid-cols-[1fr_minmax(0,36rem)_1fr]">
+        <h1 className="order-1 flex-1 font-display text-4xl sm:order-none sm:text-5xl font-bold tracking-tight">Dashboard</h1>
+        <SearchBox className="order-3 w-full sm:order-none" onSearchResults={() => {}} onError={setError} />
+        <div className="order-2 sm:order-none sm:justify-self-end">
+          <UserAvatar />
+        </div>
       </header>
       <ErrorModal message={error} onClose={() => setError(null)} />
 
@@ -143,7 +144,7 @@ function Dashboard() {
         <section aria-labelledby="latest-searches">
           <h2 id="latest-searches" className="font-display text-3xl font-semibold">Últimas búsquedas</h2>
           {latest.length ? (
-            <div className="mt-4 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
+            <div className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(9.5rem,11rem))] gap-4">
               {latest.map((entry) => (<SearchTile key={entry.game.gameId} entry={entry} />))}
             </div>
           ) : (
