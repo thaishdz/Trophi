@@ -1,11 +1,12 @@
 export const HTTP_RESPONSE_STATUS = {
     NOT_FOUND : 404,
+    FORBIDDEN: 403,
     CREATED : 201,
     BAD_REQUEST: 400,
     OK: 200,
     UNAUTHORIZED: 401,
     SERVER_ERROR: 500,
-}
+} as const
 
 // TODO(thais): Investigar enum para HTTPStatusCode comportamiento en TS
 

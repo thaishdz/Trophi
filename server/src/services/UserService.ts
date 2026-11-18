@@ -1,6 +1,7 @@
 import { HydratedDocument} from 'mongoose';
 import { AuthMethod } from "../models/AuthMethod";
 import { HttpException } from '../exceptions/HttpException';
+import { HTTP_RESPONSE_STATUS } from "../common/http/constants";
 import { IUser } from '../models/User';
 
 
@@ -13,7 +14,7 @@ export class UserService {
       userId: user._id
     })
     if (!authMethodDocument) {
-      throw new HttpException(404, "Authmethod not found")
+      throw new HttpException(HTTP_RESPONSE_STATUS.NOT_FOUND, "Authmethod not found")
     }
       return authMethodDocument.steamId;
   }
