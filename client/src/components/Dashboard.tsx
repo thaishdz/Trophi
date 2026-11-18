@@ -5,7 +5,7 @@ import SearchBox from './SearchBox'
 import UserAvatar from './UserAvatar'
 import { useGamePalette } from '../hooks/useGamePalette'
 import { progressColor } from '../lib/progress'
-import { promoteSearch, SearchEntry, useSearchHistory } from '../lib/searchHistory'
+import { SearchEntry, useSearchHistory } from '../lib/searchHistory'
 
 const percent = (unlocked: number, total: number) => (total ? Math.round((unlocked / total) * 100) : 0)
 
@@ -44,7 +44,7 @@ function CurrentGame({ entry }: { entry: SearchEntry | undefined }) {
   return (
     <section
       aria-label="Juego actual"
-      className="relative isolate overflow-hidden rounded-[2rem] border border-(--p-line) bg-(--p-surface)"
+      className="relative isolate overflow-hidden rounded-[2rem] border border-(--p-line) bg-(--p-surface) transition-colors hover:border-(--p-accent)"
     >
       {headerImage && (
         <img
@@ -64,7 +64,10 @@ function CurrentGame({ entry }: { entry: SearchEntry | undefined }) {
             {pct === 100 ? 'Completado' : 'En progreso'}
           </span>
           <h2 className="mt-3 font-display text-6xl sm:text-8xl font-bold leading-[0.92] tracking-tight text-balance">
-            {game.gameName}
+            {/* Stretched link: the whole hero opens the game page */}
+            <a href={`/games/${game.gameId}`} className="after:absolute after:inset-0 after:content-[''] hover:underline decoration-2 underline-offset-8">
+              {game.gameName}
+            </a>
           </h2>
           <p className="mt-4 text-lg text-muted">
             {game.total ? `${game.unlocked} de ${game.total} logros desbloqueados` : 'Este juego no tiene logros'}
@@ -91,9 +94,9 @@ function PercentPill({ value }: { value: number }) {
 function SearchTile({ entry }: { entry: SearchEntry }) {
   const { game } = entry
   return (
-    <button
-      type="button"
-      onClick={() => promoteSearch(game.gameId)}
+    <a
+      href={`/games/${game.gameId}`}
+      aria-label={`Ver logros de ${game.gameName}`}
       className="group relative isolate aspect-[3/4] overflow-hidden rounded-2xl border border-(--p-line) bg-(--p-surface) text-left cursor-pointer"
     >
       <GameCover game={game} className="absolute inset-0 -z-10 h-full w-full transition-transform duration-300 group-hover:scale-105" />
@@ -102,7 +105,7 @@ function SearchTile({ entry }: { entry: SearchEntry }) {
       <div className="absolute inset-x-0 bottom-0 p-3.5">
         <p className="font-display text-xl font-semibold leading-tight line-clamp-2">{game.gameName}</p>
       </div>
-    </button>
+    </a>
   )
 }
 

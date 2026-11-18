@@ -1,5 +1,6 @@
 import Dashboard from './components/Dashboard'
 import Profile from './components/Profile'
+import GameDetail from './components/GameDetail'
 import GamesLibrary from './components/GamesLibrary'
 import Layout from './components/Layout'
 import LoginView from './components/LoginView'
@@ -15,9 +16,12 @@ function App() {
   // No router yet: the sidebar links are plain anchors, so the path picks the view
   const path = window.location.pathname
 
+  // /games/:id is the page of a single game
+  const gameId = Number(path.match(/^\/games\/(\d+)\/?$/)?.[1])
+
   return (
     <Layout>
-      {path.startsWith('/games') ? <GamesLibrary /> : path.startsWith('/profile') ? <Profile /> : <Dashboard />}
+      {gameId ? <GameDetail gameId={gameId} /> : path.startsWith('/games') ? <GamesLibrary /> : path.startsWith('/profile') ? <Profile /> : <Dashboard />}
     </Layout>
   )
 }
