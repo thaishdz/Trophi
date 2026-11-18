@@ -26,7 +26,7 @@ function NavItem({ href, label, active, children }: NavItemProps) {
   )
 }
 
-// Slim rail on the left; on small screens it becomes a top bar
+// Slim rail on the left with the items centered and spaced out (there are only two); on small screens it becomes a top bar
 function Sidebar() {
   const path = window.location.pathname
   const inLibrary = path.startsWith('/games')
@@ -35,7 +35,7 @@ function Sidebar() {
   return (
     <nav
       aria-label="Principal"
-      className="fixed z-40 inset-x-0 top-0 h-14 sm:inset-y-0 sm:right-auto sm:h-auto sm:w-[72px] bg-panel border-b sm:border-b-0 sm:border-r border-line flex flex-row sm:flex-col items-center justify-center sm:justify-start gap-2 sm:py-6"
+      className="fixed z-40 inset-x-0 top-0 h-14 sm:inset-y-0 sm:right-auto sm:h-auto sm:w-[72px] bg-panel border-b sm:border-b-0 sm:border-r border-line flex flex-row sm:flex-col items-center justify-center gap-8 sm:gap-10"
     >
       <NavItem href="/dashboard" label="Dashboard" active={!inLibrary && !inProfile}>
         <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
