@@ -2,6 +2,8 @@ import { useState } from 'react'
 import ErrorModal from './ErrorModal'
 import GameCover from './GameCover'
 import SearchBox from './SearchBox'
+import { useGame } from '../hooks/useGame'
+import { useFollowedList } from '../hooks/useFollowedAchievements'
 import { useGamePalette } from '../hooks/useGamePalette'
 import { progressColor } from '../lib/progress'
 import { SearchEntry, useSearchHistory } from '../lib/searchHistory'
@@ -22,6 +24,38 @@ function ProgressRing({ value }: { value: number }) {
         />
       </svg>
       <span className="absolute inset-0 grid place-items-center font-display text-5xl sm:text-6xl font-bold" style={{ color }}>{value}%</span>
+    </div>
+  )
+}
+
+// Most recently followed achievement of the current game that is still locked
+function LastFollowed({ gameId }: { gameId: number }) {
+  const { data: followed = [] } = useFollowedList(gameId)
+  // The game is only requested once there is something followed, to spare Steam calls
+  const { data: game } = useGame(gameId, { enabled: followed.length > 0 })
+  const last = [...followed].reverse().map((apiname) => game?.achievements.find((a) => a.value === apiname)).find(Boolean)
+  if (!last) return null
+
+  return (
+    <div className="relative mt-6 flex max-w-lg items-center gap-4 rounded-2xl border border-[color-mix(in_srgb,var(--p-accent)_45%,transparent)] bg-[linear-gradient(110deg,color-mix(in_srgb,var(--p-accent)_22%,transparent),transparent_80%)] p-3.5 pr-5 backdrop-blur-sm">
+      <div className="relative shrink-0">
+        {/* Halo in the game's accent colour: the icon Steam gives for a locked achievement is grey */}
+        <div aria-hidden="true" className="absolute -inset-2 rounded-full bg-(--p-accent) opacity-30 blur-xl" />
+        <img
+          src={last.icon} alt="" loading="lazy"
+          className="relative h-16 w-16 rounded-xl bg-black/40 object-cover ring-2 ring-(--p-accent) shadow-lg shadow-black/40"
+        />
+      </div>
+      <div className="min-w-0">
+        <p className="flex items-center gap-1.5 text-sm font-semibold text-(--p-accent)">
+          <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z" />
+          </svg>
+          Último logro seguido
+        </p>
+        <p className="mt-0.5 font-display text-2xl font-semibold leading-tight">{last.name}</p>
+        {last.description && <p className="mt-0.5 line-clamp-2 text-sm text-muted text-pretty">{last.description}</p>}
+      </div>
     </div>
   )
 }
@@ -71,6 +105,7 @@ function CurrentGame({ entry }: { entry: SearchEntry | undefined }) {
           <p className="mt-4 text-lg text-muted">
             {game.total ? `${game.unlocked} de ${game.total} logros desbloqueados` : 'Este juego no tiene logros'}
           </p>
+          <LastFollowed gameId={game.gameId} />
         </div>
         {game.total > 0 && <ProgressRing value={pct} />}
       </div>

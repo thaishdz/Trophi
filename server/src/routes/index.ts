@@ -7,6 +7,8 @@ import GameService from "../services/games/GameService";
 import AchievementsService from "../services/achievements/AchievementsService";
 import { getSteamId } from "../middlewares/steamId";
 import { getMe } from "../controllers/UserController";
+import FollowService from "../services/follows/FollowService";
+import { FollowController } from "../controllers/FollowController";
 
 const router = Router();
 
@@ -14,6 +16,7 @@ const router = Router();
 const steamService = new SteamService();
 const gameService = new GameService(steamService);
 const achievementsService = new AchievementsService(steamService);
+const followController = new FollowController(new FollowService());
 const gamesController = new GameController(
   gameService,
   achievementsService
@@ -33,5 +36,10 @@ router.get(
   getSteamId,
   gamesController.getGameAchievements.bind(gamesController),
 );
+
+// Followed achievements of the logged-in user (the achievement is its apiname)
+router.get(`/follows/:gameId`, ensureAuthenticated, followController.list);
+router.put(`/follows/:gameId/:achievement`, ensureAuthenticated, followController.follow);
+router.delete(`/follows/:gameId/:achievement`, ensureAuthenticated, followController.unfollow);
 
 export default router;
