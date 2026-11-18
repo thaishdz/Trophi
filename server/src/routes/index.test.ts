@@ -31,6 +31,14 @@ jest.mock("../services/achievements/AchievementsService", () => ({
 }));
 jest.mock("../controllers/UserController", () => ({ getMe: jest.fn() }));
 
+const mockListTracked = jest.fn();
+const mockTrack = jest.fn();
+const mockUntrack = jest.fn();
+jest.mock("../services/tracked/TrackedGamesService", () => ({
+  __esModule: true,
+  default: jest.fn(() => ({ list: mockListTracked, track: mockTrack, untrack: mockUntrack })),
+}));
+
 const mockGetFollowed = jest.fn();
 const mockFollow = jest.fn();
 const mockUnfollow = jest.fn();
@@ -153,6 +161,56 @@ describe("API routes", () => {
 
       expect(res.status).toBe(401);
       expect(mockGetFollowed).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("tracked games", () => {
+    const hades = { gameId: 1145360, gameName: "Hades", cover: "c.jpg", coverFallback: "h.jpg" };
+
+    it("lists the tracked games of the session user", async () => {
+      mockListTracked.mockResolvedValue([hades]);
+
+      const res = await request(app).get("/api/v1/tracked-games");
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual([hades]);
+      expect(mockListTracked).toHaveBeenCalledWith(USER_ID);
+    });
+
+    it("tracks a game after resolving the steamId", async () => {
+      mockTrack.mockResolvedValue(hades);
+
+      const res = await request(app).put("/api/v1/tracked-games/1145360");
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual(hades);
+      expect(mockSteamId).toHaveBeenCalled();
+      expect(mockTrack).toHaveBeenCalledWith(USER_ID, STEAM_ID, 1145360);
+    });
+
+    it("untracks a game", async () => {
+      mockUntrack.mockResolvedValue(undefined);
+
+      const res = await request(app).delete("/api/v1/tracked-games/1145360");
+
+      expect(res.status).toBe(200);
+      expect(mockUntrack).toHaveBeenCalledWith(USER_ID, 1145360);
+    });
+
+    it("returns 400 when the game id is not a positive integer", async () => {
+      const res = await request(app).put("/api/v1/tracked-games/abc");
+
+      expect(res.status).toBe(400);
+      expect(mockTrack).not.toHaveBeenCalled();
+    });
+
+    it("returns 401 when there is no session", async () => {
+      mockAuth.mockImplementation((_req, res) => res.status(401).json({ success: false }));
+
+      const res = await request(app).get("/api/v1/tracked-games");
+
+      expect(res.status).toBe(401);
+      expect(mockListTracked).not.toHaveBeenCalled();
     });
   });
 });
