@@ -25,3 +25,6 @@ logs
 
 # Claude Code
 .claude/
+
+# Editor settings
+.vscode/
