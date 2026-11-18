@@ -38,7 +38,7 @@ passport.use(
         // Optional callback called only when successful authentication occurs
         // You can save the user to database here.
         try {
-            const user = await steamAuthService.findOrCreateSteamUser(profile.steamid, profile.personaname)
+            const user = await steamAuthService.findOrCreateSteamUser(profile.steamid, profile.personaname, profile.avatarfull)
             done(null, user) // llama a serializeUser
         } catch (error) {
           console.error('STEAM AUTH ERROR:', error)

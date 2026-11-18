@@ -30,6 +30,7 @@ router.get(
 router.get(
   `/gameAchievements/:gameId`,
   ensureAuthenticated,
+  getSteamId,
   gamesController.getGameAchievements.bind(gamesController),
 );
 

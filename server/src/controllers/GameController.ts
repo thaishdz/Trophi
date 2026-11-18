@@ -25,7 +25,7 @@ export class GameController {
   ): Promise<void> => {
     try {
       const gameName = String(req.query.game);
-      if (!req.steamId) throw new HttpException(HTTP_RESPONSE_STATUS.UNAUTHORIZED, "SteamId no disponible");
+      if (!req.steamId) throw new HttpException(HTTP_RESPONSE_STATUS.UNAUTHORIZED, "SteamId not available");
       const steamId = req.steamId;
       const gamesLibrary: GameData[] = await this.gameService.getGamesLibrary(steamId);
       const matchedGames = this.gameService.findGames(gameName, gamesLibrary);
@@ -47,7 +47,7 @@ export class GameController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      if (!req.steamId) throw new HttpException(HTTP_RESPONSE_STATUS.UNAUTHORIZED, "SteamId no disponible");
+      if (!req.steamId) throw new HttpException(HTTP_RESPONSE_STATUS.UNAUTHORIZED, "SteamId not available");
       const steamId = req.steamId;
       const achievementsData = await this.gameAchievements(Number(req.params.gameId), steamId);
       res.json(createApiResponse(true, HTTP_RESPONSE_STATUS.OK, '', achievementsData));

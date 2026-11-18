@@ -1,14 +1,16 @@
 import { FormEvent, useState } from 'react'
 import { API_URL } from '../config'
 import { GameData } from '../types/game'
+import { recordSearch } from '../lib/searchHistory'
 
 
 type Props = {
   onSearchResults: (games: GameData[]) => void
   onError: (message: string) => void
+  className?: string
 }
 
-function SearchBox(props: Props) {
+function SearchBox({ className = 'w-full sm:w-80', ...props }: Props) {
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const url = `${API_URL}search?game=${encodeURIComponent(query)}`
@@ -25,28 +27,26 @@ function SearchBox(props: Props) {
           props.onError(result.message)
           return
         }
-        props.onSearchResults(result.data ?? [])
+        const games: GameData[] = result.data ?? []
+        // The dashboard shows the first match as the current game
+        if (games.length) recordSearch(query, games[0])
+        props.onSearchResults(games)
       })
-      .catch(() => props.onError('No se pudo conectar con el servidor'))
+      .catch(() => props.onError('Could not connect to the server'))
       .finally(() => setLoading(false))
   }
 
   return (
-    <div className="ml-auto w-1/4">
-      <form onSubmit={handleSearch} className="flex justify-center items-center relative w-full">
-        <input
-          className="w-full px-4 py-2 pr-10 rounded-full focus:outline-none bg-[#FBF7EC] border-[3px] border-black neo-shadow font-bold placeholder:font-normal"
-          type="text"
-          placeholder={loading ? 'Buscando…' : 'ej. Hades'}
-          value={query}
-          aria-busy={loading}
-          onChange={(e) => setQuery(e.target.value)}/>
+    <div className={className}>
+      <form onSubmit={handleSearch} role="search" className="relative w-full">
+        {/* The icon is the submit button, so Enter and a click both search */}
         <button
-          className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 ${loading ? 'animate-pulse opacity-50 cursor-wait' : ''}`}
+          className={`absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full text-muted hover:text-text ${loading ? 'animate-pulse opacity-50 cursor-wait' : 'cursor-pointer'}`}
           type="submit"
+          aria-label="Search"
           disabled={loading}>
           <svg
-            className="w-5 h-5 text-gray-800"
+            className="w-5 h-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -55,6 +55,14 @@ function SearchBox(props: Props) {
               strokeLinecap="round" d="M21 21l-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/>
           </svg>
         </button>
+        <input
+          className="w-full h-12 pl-12 pr-5 rounded-full bg-[var(--p-surface,rgb(0_0_0/0.35))] border border-[var(--p-line,var(--color-line))] text-text placeholder:text-muted backdrop-blur-sm focus:border-[var(--p-accent,var(--color-gold))] focus:outline-none focus:ring-1 focus:ring-[var(--p-accent,var(--color-gold))]"
+          type="search"
+          aria-label="Search your library"
+          placeholder={loading ? 'Buscando…' : 'Busca un juego, ej. Hades'}
+          value={query}
+          aria-busy={loading}
+          onChange={(e) => setQuery(e.target.value)}/>
       </form>
     </div>
   )

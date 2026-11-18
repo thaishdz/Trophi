@@ -3,7 +3,7 @@ import { getMe } from "./UserController";
 
 describe("UserController --- getMe", () => {
   it("returns the displayName of the session user", () => {
-    const req = { user: { displayName: "Thais", createdAt: new Date() } } as unknown as Request;
+    const req = { user: { displayName: "Thais", avatar: "https://avatars.test/thais.jpg", createdAt: new Date() } } as unknown as Request;
     const res = { json: jest.fn() } as unknown as Response;
 
     getMe(req, res);
@@ -12,7 +12,7 @@ describe("UserController --- getMe", () => {
       success: true,
       status: 200,
       message: "",
-      data: { displayName: "Thais" },
+      data: { displayName: "Thais", avatar: "https://avatars.test/thais.jpg" },
       request: undefined,
     });
   });

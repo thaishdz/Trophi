@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { API_URL } from '../config'
 
-export type SessionUser = { displayName: string };
+export type SessionUser = { displayName: string; avatar?: string };
 
 // Returns the session user, or null when there is no session (401)
 async function fetchSession(): Promise<SessionUser | null> {
