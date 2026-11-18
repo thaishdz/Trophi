@@ -4,7 +4,7 @@ type GameStatusTabsProps = {
 };
 
 function GameStatusTabs({ activeStatus, onStatusChange }: GameStatusTabsProps) {
-  const statusList = ['All', 'In Progress', 'Completed', 'Not Started']
+  const statusList = ['All', 'Tracked', 'In Progress', 'Completed', 'Not Started']
   return (
     <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-ink-text/30">
       {statusList.map((status) => {

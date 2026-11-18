@@ -2,6 +2,7 @@ import GameCard from './GameCard'
 import SearchBox from './SearchBox'
 import GameStatusTabs from './GameStatusTabs'
 import ErrorModal from './ErrorModal'
+import TrackedGames from './TrackedGames'
 import { useState } from 'react'
 import { GameData } from '../types/game'
 
@@ -9,19 +10,22 @@ import { GameData } from '../types/game'
 function GamesLibrary() {
   const [games, setGames] = useState<GameData[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [status, setStatus] = useState('All')
 
   return (
     <>
       <header className="flex flex-wrap items-end justify-between gap-4">
         <h1 className="font-display text-5xl sm:text-6xl font-bold tracking-tight leading-none">Games Library</h1>
-        <SearchBox onSearchResults={setGames} onError={setError} />
+        <SearchBox onSearchResults={(results) => { setGames(results); setStatus('All') }} onError={setError} />
       </header>
 
       <ErrorModal message={error} onClose={() => setError(null)} />
 
-      <GameStatusTabs activeStatus="All" onStatusChange={() => {}} />
+      <GameStatusTabs activeStatus={status} onStatusChange={setStatus} />
 
-      {games.length ? (
+      {status === 'Tracked' ? (
+        <TrackedGames />
+      ) : games.length ? (
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {games.map(game => (<GameCard key={game.gameId} game={game} />))}
         </div>
