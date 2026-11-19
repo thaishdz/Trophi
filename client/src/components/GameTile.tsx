@@ -16,7 +16,7 @@ function GameTile({ game, progress }: GameTileProps) {
   return (
     <div className="relative">
       <a
-        href={`/games/${game.gameId}`}
+        href={`/library/${game.gameId}`}
         aria-label={`Ver logros de ${game.gameName}`}
         className="group relative isolate block aspect-[3/4] overflow-hidden rounded-2xl border border-(--p-line) bg-(--p-surface) text-left text-text"
       >

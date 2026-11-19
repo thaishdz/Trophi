@@ -79,7 +79,7 @@ function AchievementDetail({ gameId, achievementId }: { gameId: number; achievem
 
   return (
     <TintedPage game={game && summarize(game)}>
-      <a href={`/games/${gameId}`} className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-text">
+      <a href={`/library/${gameId}`} className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-text">
         <span aria-hidden="true">←</span> Volver a {game?.gameName ?? 'el juego'}
       </a>
 
