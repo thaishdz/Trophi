@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import { AuthMethod } from "../../models/AuthMethod";
-import { User } from '../../models/User';
+import { AuthMethod } from "@/models/AuthMethod";
+import { User } from '@/models/User';
 
 export class SteamAuthService {
 

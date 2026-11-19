@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
 import NoteService from "./NoteService";
-import { AchievementNote } from "../../models/AchievementNote";
+import { AchievementNote } from "@/models/AchievementNote";
 
-jest.mock("../../models/AchievementNote", () => ({
+jest.mock("@/models/AchievementNote", () => ({
   AchievementNote: { findOne: jest.fn(), findOneAndUpdate: jest.fn(), deleteOne: jest.fn() },
 }));
 

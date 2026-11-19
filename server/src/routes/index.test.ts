@@ -3,17 +3,17 @@ import request from "supertest";
 
 // The router wiring is what is under test, so auth, the steamId lookup and every
 // service are replaced: no Steam, no MongoDB, no session.
-jest.mock("../config", () => ({
+jest.mock("@/config", () => ({
   __esModule: true,
   default: { STEAM_API_KEY: "test-key" },
 }));
 
 const mockAuth = jest.fn();
 const mockSteamId = jest.fn();
-jest.mock("../middlewares/auth", () => ({
+jest.mock("@/middlewares/auth", () => ({
   ensureAuthenticated: (req: unknown, res: unknown, next: () => void) => mockAuth(req, res, next),
 }));
-jest.mock("../middlewares/steamId", () => ({
+jest.mock("@/middlewares/steamId", () => ({
   getSteamId: (req: unknown, res: unknown, next: () => void) => mockSteamId(req, res, next),
 }));
 
@@ -21,21 +21,21 @@ const mockGetGamesLibrary = jest.fn();
 const mockGetLibrary = jest.fn();
 const mockFindGames = jest.fn();
 const mockGetLocked = jest.fn();
-jest.mock("../services/steam/SteamService", () => ({ __esModule: true, default: jest.fn() }));
-jest.mock("../services/games/GameService", () => ({
+jest.mock("@/services/steam/SteamService", () => ({ __esModule: true, default: jest.fn() }));
+jest.mock("@/services/games/GameService", () => ({
   __esModule: true,
   default: jest.fn(() => ({ getGamesLibrary: mockGetGamesLibrary, getLibrary: mockGetLibrary, findGames: mockFindGames })),
 }));
-jest.mock("../services/achievements/AchievementsService", () => ({
+jest.mock("@/services/achievements/AchievementsService", () => ({
   __esModule: true,
   default: jest.fn(() => ({ getLockedAchievementsDataForPlayer: mockGetLocked })),
 }));
-jest.mock("../controllers/UserController", () => ({ getMe: jest.fn() }));
+jest.mock("@/controllers/UserController", () => ({ getMe: jest.fn() }));
 
 const mockListTracked = jest.fn();
 const mockTrack = jest.fn();
 const mockUntrack = jest.fn();
-jest.mock("../services/tracked/TrackedGamesService", () => ({
+jest.mock("@/services/tracked/TrackedGamesService", () => ({
   __esModule: true,
   default: jest.fn(() => ({ list: mockListTracked, track: mockTrack, untrack: mockUntrack })),
 }));
@@ -43,14 +43,14 @@ jest.mock("../services/tracked/TrackedGamesService", () => ({
 const mockGetFollowed = jest.fn();
 const mockFollow = jest.fn();
 const mockUnfollow = jest.fn();
-jest.mock("../services/follows/FollowService", () => ({
+jest.mock("@/services/follows/FollowService", () => ({
   __esModule: true,
   default: jest.fn(() => ({ getFollowed: mockGetFollowed, follow: mockFollow, unfollow: mockUnfollow })),
 }));
 
 const mockGetNote = jest.fn();
 const mockSaveNote = jest.fn();
-jest.mock("../services/notes/NoteService", () => ({
+jest.mock("@/services/notes/NoteService", () => ({
   __esModule: true,
   default: jest.fn(() => ({ getNote: mockGetNote, saveNote: mockSaveNote })),
 }));
@@ -58,14 +58,14 @@ jest.mock("../services/notes/NoteService", () => ({
 const mockListLinks = jest.fn();
 const mockAddLink = jest.fn();
 const mockRemoveLink = jest.fn();
-jest.mock("../services/links/LinkService", () => ({
+jest.mock("@/services/links/LinkService", () => ({
   __esModule: true,
   default: jest.fn(() => ({ list: mockListLinks, add: mockAddLink, remove: mockRemoveLink })),
 }));
 
 import router from "./index";
-import errorMiddleware from "../middlewares/error";
-import { SteamApiError } from "../exceptions/SteamApiError";
+import errorMiddleware from "@/middlewares/error";
+import { SteamApiError } from "@/exceptions/SteamApiError";
 
 const STEAM_ID = "76561198000000000";
 const USER_ID = "665f1c2e8a1b2c3d4e5f6a7b";

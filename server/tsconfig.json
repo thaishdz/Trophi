@@ -11,7 +11,13 @@
     "typeRoots": [
       "./node_modules/@types",
       "src/shared/types"
-    ]
+    ],
+    // Import alias: "@/services/..." instead of "../../services/...". Also registered for ts-node-dev
+    // (-r tsconfig-paths/register in package.json) and Jest (moduleNameMapper in jest.config.js).
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": [
     "src/**/*.ts"

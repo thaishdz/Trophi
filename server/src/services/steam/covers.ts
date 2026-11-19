@@ -1,4 +1,4 @@
-import { STEAM_CDN_URL } from "../../config/constants";
+import { STEAM_CDN_URL } from "@/config/constants";
 
 /*
  ** Las portadas se sirven desde el CDN de Steam y se deducen del appid:

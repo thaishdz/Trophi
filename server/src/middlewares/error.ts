@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { HttpException } from "../exceptions/HttpException";
-import { createApiResponse } from "../common/http/responses";
-import { HTTP_RESPONSE_STATUS } from "../common/http/constants";
+import { HttpException } from "@/exceptions/HttpException";
+import { createApiResponse } from "@/common/http/responses";
+import { HTTP_RESPONSE_STATUS } from "@/common/http/constants";
 
 
 function errorMiddleware(error:HttpException | Error, req: Request, res: Response, next: NextFunction) {

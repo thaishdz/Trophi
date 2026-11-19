@@ -1,6 +1,6 @@
 
-import { ApiResponse } from "../../../shared/types/apiResponse";
-import { AchievementDetails, AchievementDetailsResponse, GameAchievementsResponse } from "../../../shared/types/achievement";
+import { ApiResponse } from "@/shared/types/apiResponse";
+import { AchievementDetails, AchievementDetailsResponse, GameAchievementsResponse } from "@/shared/types/achievement";
 
 export const gameAchieveResponseMock: ApiResponse<GameAchievementsResponse> = {
     data: {

@@ -1,13 +1,13 @@
-import SteamService from "../steam/SteamService";
+import SteamService from "@/services/steam/SteamService";
 import GameService from "./GameService";
-import { GameData } from "../../shared/types/game";
-import { GameLibrary } from "../../models/GameLibrary";
-import { GAME_LIBRARY_TTL_MS } from "../../config/constants";
-import { SteamApiError } from "../../exceptions/SteamApiError";
+import { GameData } from "@/shared/types/game";
+import { GameLibrary } from "@/models/GameLibrary";
+import { GAME_LIBRARY_TTL_MS } from "@/config/constants";
+import { SteamApiError } from "@/exceptions/SteamApiError";
 
 // Simulo el comportamiento de las dependencias, no me enfoco en la llamada HTTP ni en la BBDD
-jest.mock("../../services/steam/SteamService");
-jest.mock("../../models/GameLibrary");
+jest.mock("@/services/steam/SteamService");
+jest.mock("@/models/GameLibrary");
 
 const STEAM_ID = "76561198000000000";
 

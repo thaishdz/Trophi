@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
 import LinkService, { LinkScope } from "./LinkService";
-import { AchievementLink } from "../../models/AchievementLink";
+import { AchievementLink } from "@/models/AchievementLink";
 
-jest.mock("../../models/AchievementLink", () => ({
+jest.mock("@/models/AchievementLink", () => ({
   AchievementLink: { find: jest.fn(), create: jest.fn(), deleteOne: jest.fn() },
 }));
 

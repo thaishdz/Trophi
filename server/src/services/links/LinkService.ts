@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { AchievementLink, LinkKind } from "../../models/AchievementLink";
+import { AchievementLink, LinkKind } from "@/models/AchievementLink";
 
 export interface LinkData {
   id: string;

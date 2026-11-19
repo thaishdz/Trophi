@@ -12,8 +12,8 @@ jest.mock("./index", () => ({
   __esModule: true,
   default: { STEAM_API_KEY: "key", BACKEND_URL: "https://api.example.com" },
 }));
-jest.mock("../models/User");
-jest.mock("../services/steam/SteamAuthService");
+jest.mock("@/models/User");
+jest.mock("@/services/steam/SteamAuthService");
 
 describe("Passport --- estrategia de Steam", () => {
   it("usa BACKEND_URL para construir la returnURL del callback", async () => {

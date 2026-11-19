@@ -1,20 +1,20 @@
 import { Router } from "express";
 
-import { ensureAuthenticated } from "../middlewares/auth";
-import { GameController } from "../controllers/GameController";
-import SteamService from "../services/steam/SteamService";
-import GameService from "../services/games/GameService";
-import AchievementsService from "../services/achievements/AchievementsService";
-import { getSteamId } from "../middlewares/steamId";
-import { getMe } from "../controllers/UserController";
-import FollowService from "../services/follows/FollowService";
-import { FollowController } from "../controllers/FollowController";
-import TrackedGamesService from "../services/tracked/TrackedGamesService";
-import { TrackedGamesController } from "../controllers/TrackedGamesController";
-import NoteService from "../services/notes/NoteService";
-import { NoteController } from "../controllers/NoteController";
-import LinkService from "../services/links/LinkService";
-import { LinkController } from "../controllers/LinkController";
+import { ensureAuthenticated } from "@/middlewares/auth";
+import { GameController } from "@/controllers/GameController";
+import SteamService from "@/services/steam/SteamService";
+import GameService from "@/services/games/GameService";
+import AchievementsService from "@/services/achievements/AchievementsService";
+import { getSteamId } from "@/middlewares/steamId";
+import { getMe } from "@/controllers/UserController";
+import FollowService from "@/services/follows/FollowService";
+import { FollowController } from "@/controllers/FollowController";
+import TrackedGamesService from "@/services/tracked/TrackedGamesService";
+import { TrackedGamesController } from "@/controllers/TrackedGamesController";
+import NoteService from "@/services/notes/NoteService";
+import { NoteController } from "@/controllers/NoteController";
+import LinkService from "@/services/links/LinkService";
+import { LinkController } from "@/controllers/LinkController";
 
 const router = Router();
 

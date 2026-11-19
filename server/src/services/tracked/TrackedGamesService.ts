@@ -1,9 +1,9 @@
 import { Types } from "mongoose";
-import GameService from "../games/GameService";
-import { getCoverUrls } from "../steam/covers";
-import { TrackedGame } from "../../models/TrackedGame";
-import { HttpException } from "../../exceptions/HttpException";
-import { HTTP_RESPONSE_STATUS, APP_ERROR_MESSAGE } from "../../common/http/constants";
+import GameService from "@/services/games/GameService";
+import { getCoverUrls } from "@/services/steam/covers";
+import { TrackedGame } from "@/models/TrackedGame";
+import { HttpException } from "@/exceptions/HttpException";
+import { HTTP_RESPONSE_STATUS, APP_ERROR_MESSAGE } from "@/common/http/constants";
 
 export interface TrackedGameData {
   gameId: number;

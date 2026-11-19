@@ -1,8 +1,8 @@
 import { HydratedDocument} from 'mongoose';
-import { AuthMethod } from "../models/AuthMethod";
-import { HttpException } from '../exceptions/HttpException';
-import { HTTP_RESPONSE_STATUS } from "../common/http/constants";
-import { IUser } from '../models/User';
+import { AuthMethod } from "@/models/AuthMethod";
+import { HttpException } from '@/exceptions/HttpException';
+import { HTTP_RESPONSE_STATUS } from "@/common/http/constants";
+import { IUser } from '@/models/User';
 
 
 

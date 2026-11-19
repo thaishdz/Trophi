@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
-import NoteService from "../services/notes/NoteService";
-import { createApiResponse } from "../common/http/responses";
-import { HTTP_RESPONSE_STATUS } from "../common/http/constants";
-import { HttpException } from "../exceptions/HttpException";
+import NoteService from "@/services/notes/NoteService";
+import { createApiResponse } from "@/common/http/responses";
+import { HTTP_RESPONSE_STATUS } from "@/common/http/constants";
+import { HttpException } from "@/exceptions/HttpException";
 
 const MAX_ACHIEVEMENT_LENGTH = 200;
 export const MAX_NOTE_LENGTH = 5000;

@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
-import TrackedGamesService from "../services/tracked/TrackedGamesService";
-import { createApiResponse } from "../common/http/responses";
-import { HTTP_RESPONSE_STATUS } from "../common/http/constants";
-import { HttpException } from "../exceptions/HttpException";
+import TrackedGamesService from "@/services/tracked/TrackedGamesService";
+import { createApiResponse } from "@/common/http/responses";
+import { HTTP_RESPONSE_STATUS } from "@/common/http/constants";
+import { HttpException } from "@/exceptions/HttpException";
 
 export class TrackedGamesController {
   constructor(private trackedGamesService: TrackedGamesService) {}

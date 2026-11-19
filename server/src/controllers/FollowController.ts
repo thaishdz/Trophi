@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
-import FollowService from "../services/follows/FollowService";
-import { createApiResponse } from "../common/http/responses";
-import { HTTP_RESPONSE_STATUS } from "../common/http/constants";
-import { HttpException } from "../exceptions/HttpException";
+import FollowService from "@/services/follows/FollowService";
+import { createApiResponse } from "@/common/http/responses";
+import { HTTP_RESPONSE_STATUS } from "@/common/http/constants";
+import { HttpException } from "@/exceptions/HttpException";
 
 const MAX_ACHIEVEMENT_LENGTH = 200;
 
