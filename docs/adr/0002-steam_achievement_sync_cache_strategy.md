@@ -10,6 +10,8 @@ Trophi permite al usuario elegir qué juegos quiere trackear para ver sus logros
 
 La Web API de Steam tiene un límite aproximado de 100.000 peticiones/día, compartido entre **toda la aplicación** (por API key), no por usuario. Este presupuesto tiene que cubrir la actividad de sincronización de todos los usuarios combinada, así que la estrategia de sincronización tiene implicaciones directas en cuántos usuarios/juegos puede soportar la app antes del límite impuesto.
 
+Trophi está pensado para que cada persona lo ejecute en su propia instancia con su propia API key (en el `.env` del servidor), así que ese límite solo lo comparten los usuarios de una misma instancia, que normalmente es uno.
+
 El diseño original del schema había asumido que la app necesitaría guardar la propia API key de Steam de cada usuario (cifrada), lo que planteaba un problema secundario, el de almacenarla como un secret de terceros (las API keys de Steam son personales y no deberían gestionarse a la ligera) para cada usuario, exigiendo un esquema de cifrado con una clave maestra guardada por separado.
 
 ## Opciones consideradas
@@ -55,7 +57,7 @@ Se resolvieron dos preguntas distintas a la vez:
 
 1. **¿La key de quién?** La propia [documentación de Steam](https://developer.valvesoftware.com/wiki/Steam_Web_API#GetOwnedGames_.28v0001.29) confirma que `GetOwnedGames` y `GetPlayerAchievements` funcionan con la key de la app para cualquier perfil visible públicamente, el caso de uso donde la key del usuario haría falta sería para leer *sus datos privados*, algo que no se necesita. Al comprobar esto, dejó de tener sentido guardar, cifrar o gestionar ninguna key de usuario.
 
-2. **¿Con qué frecuencia sincronizar?** Como el *rate limit* se comparte entre todos los usuarios de la app, sincronizar en tiempo real sin caché significa que no controlo cuántas peticiones se gastan, dependería de cuánta gente use la app y con qué frecuencia. Con una caché server-side y un cooldown por `(usuario, juego)`, sé cuánto puedo llegar a gastar como mucho.
+2. **¿Con qué frecuencia sincronizar?** Como el *rate limit* se comparte entre todos los usuarios de la instancia, sincronizar en tiempo real sin caché significa que no controlo cuántas peticiones se gastan, dependería de cuánta gente use la app y con qué frecuencia. Con una caché server-side y un cooldown por `(usuario, juego)`, sé cuánto puedo llegar a gastar como mucho.
 
 El valor del cooldown (5 minutos) se eligió en base al número actual de usuarios del proyecto (solo yo). Ampliarlo implica que la base de usuarios crezca.
 
