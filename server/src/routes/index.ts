@@ -11,6 +11,10 @@ import FollowService from "../services/follows/FollowService";
 import { FollowController } from "../controllers/FollowController";
 import TrackedGamesService from "../services/tracked/TrackedGamesService";
 import { TrackedGamesController } from "../controllers/TrackedGamesController";
+import NoteService from "../services/notes/NoteService";
+import { NoteController } from "../controllers/NoteController";
+import LinkService from "../services/links/LinkService";
+import { LinkController } from "../controllers/LinkController";
 
 const router = Router();
 
@@ -20,6 +24,10 @@ const gameService = new GameService(steamService);
 const achievementsService = new AchievementsService(steamService);
 const followController = new FollowController(new FollowService());
 const trackedGamesController = new TrackedGamesController(new TrackedGamesService(gameService));
+const noteController = new NoteController(new NoteService());
+const linkService = new LinkService();
+const guideController = new LinkController(linkService, "guide");
+const videoController = new LinkController(linkService, "video");
 const gamesController = new GameController(
   gameService,
   achievementsService
@@ -52,6 +60,18 @@ router.post(`/library/refresh`, ensureAuthenticated, getSteamId, gamesController
 router.get(`/follows/:gameId`, ensureAuthenticated, followController.list);
 router.put(`/follows/:gameId/:achievement`, ensureAuthenticated, followController.follow);
 router.delete(`/follows/:gameId/:achievement`, ensureAuthenticated, followController.unfollow);
+
+// The logged-in user's note on an achievement (the achievement is its apiname)
+router.get(`/notes/:gameId/:achievement`, ensureAuthenticated, noteController.get);
+router.put(`/notes/:gameId/:achievement`, ensureAuthenticated, noteController.save);
+
+// Guide and video links the logged-in user saved for an achievement
+router.get(`/guides/:gameId/:achievement`, ensureAuthenticated, guideController.list);
+router.post(`/guides/:gameId/:achievement`, ensureAuthenticated, guideController.add);
+router.delete(`/guides/:gameId/:achievement/:linkId`, ensureAuthenticated, guideController.remove);
+router.get(`/videos/:gameId/:achievement`, ensureAuthenticated, videoController.list);
+router.post(`/videos/:gameId/:achievement`, ensureAuthenticated, videoController.add);
+router.delete(`/videos/:gameId/:achievement/:linkId`, ensureAuthenticated, videoController.remove);
 
 // Games the logged-in user tracks. Tracking needs the steamId to check the game is in their library
 router.get(`/tracked-games`, ensureAuthenticated, trackedGamesController.list);
