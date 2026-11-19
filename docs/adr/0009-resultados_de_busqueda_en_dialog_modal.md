@@ -7,58 +7,33 @@
 
 ## Contexto
 
-La biblioteca tenía pestañas de estado (en progreso, completados, sin empezar) que no filtraban nada, y los resultados de buscar se mostraban en la misma página. Al buscar, el usuario salía de sus juegos guardados. Tenía que decidir cómo presentar los resultados y qué hacer con las pestañas.
+- La biblioteca tenía pestañas de estado (en progreso, completados, sin empezar) que no filtraban nada.
+- Los resultados de buscar se mostraban en la misma página: al buscar, el usuario salía de sus juegos guardados.
+- Tenía que decidir cómo presentar los resultados y qué hacer con las pestañas.
 
 ## Opciones consideradas
 
-### Pestañas Resultados y Guardados
-
-**Ventajas:**
-- Es lo más simple y ya existía.
-
-**Desventajas:**
-- Buscar saca al usuario de sus guardados, y las pestañas de estado eran marcadores sin función.
-
-### Panel desplegable junto al buscador
-
-**Ventajas:**
-- Es rápido de usar y no tapa la página.
-
-**Desventajas:**
-- Con portadas o fichas, el espacio es estrecho.
-
-### Modal con rejilla de portadas
-
-Un `<dialog>` modal nativo con una rejilla de portadas.
-
-**Ventajas:**
-- El navegador se encarga del foco, de Escape y de dejar inerte la página.
-
-**Desventajas:**
-- Es poco útil para comparar datos, porque la portada no lleva el progreso detallado.
-
-### Modal con una ficha por juego
-
-Un `<dialog>` modal nativo con una ficha de ancho completo por juego.
-
-**Ventajas:**
-- Mismas ventajas nativas que el modal con rejilla de portadas.
-- La ficha muestra portada, progreso y logros pendientes, que es lo que el usuario mira para decidir si guardar un juego.
-
-**Desventajas:**
-- Un componente más.
+| Opción | A favor | En contra |
+|---|---|---|
+| Pestañas Resultados y Guardados | Es lo más simple y ya existía | Buscar saca al usuario de sus guardados, y las pestañas de estado eran marcadores sin función |
+| Panel desplegable junto al buscador | Es rápido de usar y no tapa la página | Con portadas o fichas, el espacio es estrecho |
+| Modal con rejilla de portadas (`<dialog>` nativo) | El navegador se encarga del foco, de Escape y de dejar inerte la página | Es poco útil para comparar datos, porque la portada no lleva el progreso detallado |
+| ⭐ **Modal con una ficha por juego** (`<dialog>` nativo, una ficha de ancho completo por juego) | Mismas ventajas nativas que el modal con rejilla. La ficha muestra portada, progreso y logros pendientes, que es lo que el usuario mira para decidir si guardar un juego | Un componente más |
 
 ## Razonamiento
 
-Los resultados son algo pasajero: se miran, se guarda alguno y se cierran. Un modal los separa de la lista de guardados. Entre los dos modales, el **modal con una ficha por juego** enseña más datos por el mismo espacio y encaja con lo que el usuario mira al buscar.
+- Los resultados son algo pasajero: se miran, se guarda alguno y se cierran. Un modal los separa de la lista de guardados.
+- Entre los dos modales, el **modal con una ficha por juego** enseña más datos por el mismo espacio y encaja con lo que el usuario mira al buscar.
 
 ## Decisión
 
 **Elijo el modal con una ficha por juego.**
 
-- La biblioteca queda con el buscador y la lista de juegos guardados. Quito las pestañas de estado y también el buscador del dashboard.
-- El modal se cierra con Escape, con su botón o pulsando fuera (`closedby="any"`, con un respaldo para Safari, que no lo admite).
-- Si guardo un juego desde el modal, la lista de detrás se actualiza sola.
+| Pieza | Detalle |
+|---|---|
+| Biblioteca | Queda con el buscador y la lista de juegos guardados. Quito las pestañas de estado y también el buscador del dashboard |
+| Cierre | Con Escape, con su botón o pulsando fuera (`closedby="any"`, con un respaldo para Safari, que no lo admite) |
+| Guardar | Si guardo un juego desde el modal, la lista de detrás se actualiza sola |
 
 ## Consecuencias
 

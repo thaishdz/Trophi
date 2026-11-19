@@ -7,54 +7,34 @@
 
 ## Contexto
 
-Cada búsqueda (`GET /search`) llamaba a `GetOwnedGames` de Steam para obtener la biblioteca completa y filtrarla con Fuse.js. Eso supone una petición a Steam por búsqueda, y el presupuesto de la Web API (~100.000 peticiones/día) se comparte entre todos los usuarios de la app (ADR 0002).
-
-La biblioteca cambia poco, solo cuando el usuario compra o añade un juego, así que pedirla en cada búsqueda es un gasto innecesario.
+- Cada búsqueda (`GET /search`) llamaba a `GetOwnedGames` de Steam para obtener la biblioteca completa y filtrarla con Fuse.js.
+- Eso supone una petición a Steam por búsqueda, y el presupuesto de la Web API (~100.000 peticiones/día) se comparte entre todos los usuarios de la app ([ADR 0002](0002-steam_achievement_sync_cache_strategy.md)).
+- La biblioteca cambia poco, solo cuando el usuario compra o añade un juego: pedirla en cada búsqueda es un gasto innecesario.
 
 ## Opciones consideradas
 
-### Opción A: No persistir (estado anterior)
-
-**Ventajas:**
-- No requiere código nuevo y los datos siempre están al día.
-
-**Desventajas:**
-- Una llamada a Steam por búsqueda. Consume presupuesto compartido y añade latencia a todas las búsquedas.
-- Si Steam falla, la búsqueda falla.
-
-### Opción B: Persistir y refrescar en la misma petición cuando caduca
-
-**Ventajas:**
-- Solo la primera búsqueda tras caducar la copia espera a Steam. El resto salen de la base de datos.
-- Fácil de razonar y de testear: la respuesta sale siempre de datos validados en esa misma petición.
-- Permite devolver una copia caducada si Steam falla.
-
-**Desventajas:**
-- La petición que refresca es más lenta que las demás.
-- Dos búsquedas simultáneas con la copia caducada refrescan las dos, con dos llamadas a Steam. El resultado es el mismo.
-
-### Opción C: Persistir y refrescar en segundo plano (stale-while-revalidate)
-
-**Ventajas:**
-- Ninguna petición espera a Steam si hay copia.
-
-**Desventajas:**
-- Más complejidad: refresco asíncrono y gestión de errores fuera de la petición.
-- La respuesta puede mostrar datos caducados justo después de comprar un juego.
+| Opción | A favor | En contra |
+|---|---|---|
+| No persistir (estado anterior) | No requiere código nuevo y los datos siempre están al día | Una llamada a Steam por búsqueda: consume presupuesto compartido y añade latencia a todas las búsquedas. Si Steam falla, la búsqueda falla |
+| ⭐ **Persistir y refrescar en la misma petición cuando caduca** | Solo la primera búsqueda tras caducar la copia espera a Steam; el resto salen de la base de datos. Fácil de razonar y de testear: la respuesta sale siempre de datos validados en esa petición. Permite devolver una copia caducada si Steam falla | La petición que refresca es más lenta. Dos búsquedas simultáneas con la copia caducada refrescan las dos, con dos llamadas a Steam (el resultado es el mismo) |
+| Persistir y refrescar en segundo plano (stale-while-revalidate) | Ninguna petición espera a Steam si hay copia | Más complejidad: refresco asíncrono y gestión de errores fuera de la petición. Puede mostrar datos caducados justo después de comprar un juego |
 
 ## Razonamiento
 
-Con refresco en la misma petición, la espera afecta a una búsqueda de cada varias y, en conjunto, es menor que con el estado anterior, donde todas esperaban. Además, esa primera búsqueda ya es lenta por otro motivo: tras filtrar, se piden los logros de cada juego encontrado, una llamada a Steam por juego. El refresco en segundo plano ahorra esa espera a costa de una complejidad que no se justifica con el tráfico actual.
+- Con refresco en la misma petición, la espera afecta a una búsqueda de cada varias y, en conjunto, es menor que con el estado anterior, donde todas esperaban.
+- Esa primera búsqueda ya es lenta por otro motivo: tras filtrar, se piden los logros de cada juego encontrado, una llamada a Steam por juego.
+- El refresco en segundo plano ahorra esa espera a costa de una complejidad que no se justifica con el tráfico actual.
 
 ## Decisión
 
-**Elegida: Opción B, persistir y refrescar en la misma petición.**
+**Elegida: persistir y refrescar en la misma petición.**
 
-- Modelo `GameLibrary`: `steamId` (único), `games: [{ gameId, gameName }]` y `syncedAt`. La clave es `steamId` y no `userId` porque es lo que ya recibe `GameService.getGamesLibrary`.
-- Caducidad: `GAME_LIBRARY_TTL_MS` = 5 minutos, igual que el cooldown de logros del ADR 0002.
-  - **Actualización:** el [ADR 0011](0011-cache_de_logros_y_refresco_manual.md) amplía la caducidad a 8 horas y añade un botón para que el usuario refresque la biblioteca cuando quiera.
-- Si Steam falla y existe una copia, aunque esté caducada, se devuelve la copia. Si no hay copia, el error se propaga como antes.
-- Interfaz: mientras busca, `SearchBox` muestra "Buscando…" y bloquea el botón. No hay modal.
+| Pieza | Detalle |
+|---|---|
+| Modelo | `GameLibrary`: `steamId` (único), `games: [{ gameId, gameName }]` y `syncedAt`. La clave es `steamId` y no `userId` porque es lo que ya recibe `GameService.getGamesLibrary` |
+| Caducidad | `GAME_LIBRARY_TTL_MS` = 5 minutos, igual que el cooldown de logros del [ADR 0002](0002-steam_achievement_sync_cache_strategy.md). **Actualización:** el [ADR 0011](0011-cache_de_logros_y_refresco_manual.md) amplía la caducidad a 8 horas y añade un botón para que el usuario refresque la biblioteca cuando quiera |
+| Si Steam falla | Si existe una copia, aunque esté caducada, se devuelve la copia. Si no hay copia, el error se propaga como antes |
+| Interfaz | Mientras busca, `SearchBox` muestra "Buscando…" y bloquea el botón. No hay modal |
 
 ## Cuándo revisar esta decisión
 

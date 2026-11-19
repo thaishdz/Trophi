@@ -7,82 +7,39 @@
 
 ## Contexto
 
-Quería una nueva dirección visual para el rediseño de toda la aplicación. Más tarde, la biblioteca y el perfil quedaron con aspecto distinto al del dashboard y la página del juego, y tuve que decidir cuál era la referencia.
+- Quería una nueva dirección visual para el rediseño de toda la aplicación.
+- Más tarde, la biblioteca y el perfil quedaron con aspecto distinto al del dashboard y la página del juego, y tuve que decidir cuál era la referencia.
 
 ## Opciones para la dirección visual
 
-### Oscuro de "temática gamer"
-
-Fondos casi negros, portadas verticales grandes y acentos tomados del arte del juego.
-
-**Ventajas:**
-
-- Es el lenguaje de Steam y de otras plataformas gaming.
-- Las portadas ya llegan en formato vertical desde el CDN (ADR 0005).
-
-### Editorial y limpio
-
-Mucho aire y tipografía con carácter.
-
-**Desventajas:**
-
-- El color se concentra menos en las portadas.
-
-### Vitrina de coleccionista
-
-Insignias y medallas por juego.
-
-**Ventajas:**
-
-- Encaja con los logros.
-
-**Desventajas:**
-
-- Pide más diseño propio por juego.
-
-### Cristal suave con gradientes
-
-**Ventajas:**
-
-- Es moderno.
-
-**Desventajas:**
-
-- Es genérico para esta temática.
+| Opción | A favor | En contra |
+|---|---|---|
+| ⭐ **Oscuro de "temática gamer"** (fondos casi negros, portadas verticales grandes y acentos tomados del arte del juego) | Es el lenguaje de Steam y de otras plataformas gaming. Las portadas ya llegan en formato vertical desde el CDN ([ADR 0005](0005-game_covers_steam_cdn.md)) | — |
+| Editorial y limpio (mucho aire y tipografía con carácter) | — | El color se concentra menos en las portadas |
+| Vitrina de coleccionista (insignias y medallas por juego) | Encaja con los logros | Pide más diseño propio por juego |
+| Cristal suave con gradientes | Es moderno | Es genérico para esta temática |
 
 ## Opciones para la referencia de todas las pantallas
 
-### Fondo fijo
-
-Un único color de fondo para toda la aplicación.
-
-**Ventajas:**
-
-- Es simple.
-
-**Desventajas:**
-
-- Pierde lo más distintivo del dashboard.
-
-### Fondo teñido por el juego actual
-
-La paleta sale de los colores de la portada del último juego buscado.
-
-**Ventajas:**
-
-- Es más inmersivo y crea una atmósfera más elegante
+| Opción | A favor | En contra |
+|---|---|---|
+| Fondo fijo (un único color para toda la aplicación) | Es simple | Pierde lo más distintivo del dashboard |
+| ⭐ **Fondo teñido por el juego actual** (la paleta sale de los colores de la portada del último juego buscado) | Es más inmersivo y crea una atmósfera más elegante | — |
 
 ## Razonamiento
 
-Elijo **oscuro** porque las portadas verticales son lo más reconocible para el usuario y ya las tengo. Para la referencia elijo el **fondo teñido por el juego actual**: el tinte por juego es lo que más diferencia la aplicación.
+- Elijo **oscuro** porque las portadas verticales son lo más reconocible para el usuario y ya las tengo.
+- Para la referencia elijo el **fondo teñido por el juego actual**: el tinte por juego es lo que más diferencia la aplicación.
 
 ## Decisión
 
 **Elijo oscuro, con el fondo teñido por el juego actual.**
 
-- Paleta base en azul-negro con texto blanco cálido, tipografías Barlow Condensed para títulos e Instrument Sans para texto.
-- El componente `TintedPage` da a cada pantalla el fondo con degradado y las variables `--p-line`, `--p-surface` y `--p-accent`. Lo usan el dashboard, la biblioteca, la página del juego y el perfil.
-- La vista de login conserva su propio fondo.
+| Pieza | Detalle |
+|---|---|
+| Paleta y tipografía | Base en azul-negro con texto blanco cálido, tipografías Barlow Condensed para títulos e Instrument Sans para texto |
+| `TintedPage` | Da a cada pantalla el fondo con degradado y las variables `--p-line`, `--p-surface` y `--p-accent`. Lo usan el dashboard, la biblioteca, la página del juego y el perfil |
+| Login | La vista de login conserva su propio fondo |
 
 ## Consecuencias
 
