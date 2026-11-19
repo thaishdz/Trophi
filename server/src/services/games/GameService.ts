@@ -8,6 +8,7 @@ import { SteamApiError } from "../../exceptions/SteamApiError";
 import { HTTP_RESPONSE_STATUS } from "../../common/http/constants";
 import { GAME_LIBRARY_TTL_MS } from "../../config/constants";
 import { GameLibrary } from "../../models/GameLibrary";
+import { Cached, readThrough } from "../cache/readThrough";
 
 class GameService {
   /*
@@ -23,24 +24,25 @@ class GameService {
    ** copia guardada (aunque esté caducada), se devuelve esa copia.
    */
   async getGamesLibrary(steamId: string): Promise<GameData[]> {
+    const { value } = await this.getLibrary(steamId);
+    return value;
+  }
+
+  // With refresh, the user asks for the library again even if the stored copy is recent
+  async getLibrary(steamId: string, { refresh = false } = {}): Promise<Cached<GameData[]>> {
     const stored = await GameLibrary.findOne({ steamId }).lean();
 
-    if (stored && Date.now() - stored.syncedAt.getTime() < GAME_LIBRARY_TTL_MS) {
-      return stored.games;
-    }
-
-    try {
-      const games = await this.fetchGamesLibrary(steamId);
-      await GameLibrary.findOneAndUpdate(
+    return readThrough<GameData[]>({
+      stored: stored && { value: stored.games, syncedAt: stored.syncedAt },
+      ttlMs: GAME_LIBRARY_TTL_MS,
+      refresh,
+      fetch: () => this.fetchGamesLibrary(steamId),
+      save: (games, syncedAt) => GameLibrary.findOneAndUpdate(
         { steamId },
-        { games, syncedAt: new Date() },
+        { games, syncedAt },
         { upsert: true },
-      );
-      return games;
-    } catch (error) {
-      if (stored) return stored.games;
-      throw error;
-    }
+      ),
+    });
   }
 
   private async fetchGamesLibrary(steamId: string): Promise<GameData[]> {

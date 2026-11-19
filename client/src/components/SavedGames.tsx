@@ -2,7 +2,7 @@ import { useGame } from '../hooks/useGame'
 import { TrackedGame, useTrackedGames } from '../hooks/useTrackedGames'
 import GameTile from './GameTile'
 
-// Progress comes from the game's achievements, which are requested per tile and cached for 5 minutes
+// Progress comes from the game's achievements, which are requested per tile and cached for 30 minutes
 function SavedTile({ game }: { game: TrackedGame }) {
   const { data } = useGame(game.gameId)
   const progress = data?.totalGameAchievements

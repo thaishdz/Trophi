@@ -11,6 +11,7 @@ export interface GameData {
   gameName: string;
   cover?: string; // portada vertical 600x900 (CDN de Steam)
   coverFallback?: string; // cabecera horizontal si la portada vertical no existe
+  syncedAt?: string; // when the player's progress was last asked to Steam (ISO date)
   totalGameAchievements: number;
   achievements: Achievement[];
 }

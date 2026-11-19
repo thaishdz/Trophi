@@ -83,6 +83,18 @@ describe("GameService --- biblioteca de juegos", () => {
     expect(findOneAndUpdateMock).toHaveBeenCalledTimes(1);
   });
 
+  it("pide la biblioteca a Steam aunque la copia sea reciente si el usuario la refresca", async () => {
+    mockStored(stored(60_000));
+    apiServiceMock.getOwnedGames.mockResolvedValue(steamResponse);
+
+    const result = await gameService.getLibrary(STEAM_ID, { refresh: true });
+
+    expect(result.value).toEqual(expectedGames);
+    expect(result.syncedAt).toEqual(expect.any(Date));
+    expect(apiServiceMock.getOwnedGames).toHaveBeenCalledTimes(1);
+    expect(findOneAndUpdateMock).toHaveBeenCalledTimes(1);
+  });
+
   it("devuelve la copia caducada si Steam falla", async () => {
     const doc = stored(GAME_LIBRARY_TTL_MS + 60_000);
     mockStored(doc);
