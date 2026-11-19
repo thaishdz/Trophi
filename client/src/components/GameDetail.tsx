@@ -28,24 +28,31 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 }
 
 type RowProps = {
+  gameId: number
   achievement: Achievement
   following: boolean
   onToggle: () => void
 }
 
-function AchievementRow({ achievement, following, onToggle }: RowProps) {
+function AchievementRow({ gameId, achievement, following, onToggle }: RowProps) {
   return (
-    <li className="flex items-center gap-4 rounded-2xl border border-(--p-line) bg-(--p-surface) p-3.5">
-      <img
-        src={achievement.icon} alt="" loading="lazy"
-        className="h-14 w-14 shrink-0 rounded-xl bg-black/40 object-cover grayscale opacity-80"
-      />
-      <div className="min-w-0 flex-1">
-        <p className="font-semibold leading-tight">{achievement.name}</p>
-        <p className="mt-0.5 text-sm text-muted text-pretty">
-          {achievement.description || 'Logro oculto'}
-        </p>
-      </div>
+    <li className="flex items-center gap-4 rounded-2xl border border-(--p-line) bg-(--p-surface) p-3.5 transition-colors hover:border-(--p-accent)">
+      {/* The link opens the achievement page (guides and notes); the follow button stays its sibling */}
+      <a
+        href={`/games/${gameId}/achievements/${encodeURIComponent(achievement.value)}`}
+        className="group flex min-w-0 flex-1 items-center gap-4"
+      >
+        <img
+          src={achievement.icon} alt="" loading="lazy"
+          className="h-14 w-14 shrink-0 rounded-xl bg-black/40 object-cover grayscale opacity-80"
+        />
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold leading-tight group-hover:text-(--p-accent)">{achievement.name}</p>
+          <p className="mt-0.5 text-sm text-muted text-pretty">
+            {achievement.description || 'Logro oculto'}
+          </p>
+        </div>
+      </a>
       <button
         type="button"
         aria-pressed={following}
@@ -64,15 +71,16 @@ function AchievementRow({ achievement, following, onToggle }: RowProps) {
 }
 
 type ListProps = {
+  gameId: number
   items: Achievement[]
   followed: Set<string>
   onToggle: (achievement: string) => void
 }
 
-function AchievementList({ items, followed, onToggle }: ListProps) {
+function AchievementList({ gameId, items, followed, onToggle }: ListProps) {
   return (
     <ul className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-      {items.map((a) => (<AchievementRow key={a.value} achievement={a} following={followed.has(a.value)} onToggle={() => onToggle(a.value)} />))}
+      {items.map((a) => (<AchievementRow key={a.value} gameId={gameId} achievement={a} following={followed.has(a.value)} onToggle={() => onToggle(a.value)} />))}
     </ul>
   )
 }
@@ -159,7 +167,7 @@ function GameDetail({ gameId }: { gameId: number }) {
                 Siguiendo <span className="text-muted">({following.length})</span>
               </h2>
               {following.length ? (
-                <AchievementList items={following} followed={followed} onToggle={toggle} />
+                <AchievementList gameId={gameId} items={following} followed={followed} onToggle={toggle} />
               ) : (
                 <p className="mt-3 text-muted">Sigue un logro pendiente y aparecerá aquí.</p>
               )}
@@ -171,7 +179,7 @@ function GameDetail({ gameId }: { gameId: number }) {
               Logros pendientes <span className="text-muted">({pending.length})</span>
             </h2>
             {pending.length ? (
-              <AchievementList items={pending} followed={followed} onToggle={toggle} />
+              <AchievementList gameId={gameId} items={pending} followed={followed} onToggle={toggle} />
             ) : (
               <p className="mt-3 text-muted">
                 {locked ? 'Estás siguiendo todos los logros pendientes.' : total ? '¡Lo tienes todo! No queda ningún logro por desbloquear.' : 'Este juego no tiene logros.'}
