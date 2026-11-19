@@ -6,6 +6,7 @@ import GamesLibrary from './components/GamesLibrary'
 import Layout from './components/Layout'
 import LoginView from './components/LoginView'
 import { useSession } from './hooks/useSession'
+import { parseRoute, Route } from './lib/route'
 
 function App() {
   const { data: user, isPending, isError } = useSession()
@@ -14,19 +15,17 @@ function App() {
   if (isError) return <div className="p-6">No se pudo conectar con el servidor</div>
   if (!user) return <LoginView />
 
-  // No router yet: the sidebar links are plain anchors, so the path picks the view
-  const path = window.location.pathname
+  return <Layout>{renderView(parseRoute(window.location.pathname))}</Layout>
+}
 
-  // /library lists the games; /library/:id is the page of a single game; /library/:id/achievements/:apiname, one of its achievements
-  const [, gameMatch, achievementMatch] = path.match(/^\/library\/(\d+)(?:\/achievements\/([^/]+))?\/?$/) ?? []
-  const gameId = Number(gameMatch)
-  const achievementId = achievementMatch && decodeURIComponent(achievementMatch)
-
-  return (
-    <Layout>
-      {gameId && achievementId ? <AchievementDetail gameId={gameId} achievementId={achievementId} /> : gameId ? <GameDetail gameId={gameId} /> : path.startsWith('/library') ? <GamesLibrary /> : path.startsWith('/profile') ? <Profile /> : <Dashboard />}
-    </Layout>
-  )
+function renderView(route: Route) {
+  switch (route.view) {
+    case 'achievement': return <AchievementDetail gameId={route.gameId} achievementId={route.achievementId} />
+    case 'game': return <GameDetail gameId={route.gameId} />
+    case 'library': return <GamesLibrary />
+    case 'profile': return <Profile />
+    case 'dashboard': return <Dashboard />
+  }
 }
 
 export default App
