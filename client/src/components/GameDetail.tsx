@@ -1,4 +1,5 @@
-import { useGame } from '../hooks/useGame'
+import { useGame, useRefreshGame } from '../hooks/useGame'
+import RefreshButton from './RefreshButton'
 import TintedPage from './TintedPage'
 import { useFollowedAchievements } from '../hooks/useFollowedAchievements'
 import { progressColor } from '../lib/progress'
@@ -79,6 +80,7 @@ function AchievementList({ items, followed, onToggle }: ListProps) {
 function GameDetail({ gameId }: { gameId: number }) {
   const { data: game, isPending, error } = useGame(gameId)
   const { followed, toggle, failed } = useFollowedAchievements(gameId)
+  const refresh = useRefreshGame(gameId)
   // The locked achievements are split in two sections. A followed achievement may have been
   // unlocked since, so only the ones still locked show up as followed.
   const achievements = game?.achievements ?? []
@@ -94,9 +96,20 @@ function GameDetail({ gameId }: { gameId: number }) {
 
   return (
     <TintedPage game={game && summarize(game)}>
-      <a href="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-text">
-        <span aria-hidden="true">←</span> Volver al dashboard
-      </a>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <a href="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-text">
+          <span aria-hidden="true">←</span> Volver al dashboard
+        </a>
+        {game && (
+          <RefreshButton
+            syncedAt={game.syncedAt}
+            onRefresh={() => refresh.mutate()}
+            pending={refresh.isPending}
+            failed={refresh.isError}
+            label="los logros"
+          />
+        )}
+      </div>
 
       {isPending && <p className="mt-10 text-muted" role="status">Cargando logros…</p>}
       {error && (

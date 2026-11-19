@@ -21,4 +21,5 @@ export interface GameData extends Partial<AchievementPlayerData> {
     gameName: string;
     cover?: string; // portada vertical 600x900
     coverFallback?: string; // cabecera horizontal, para cuando no existe la portada vertical
+    syncedAt?: Date; // when the player's progress was last asked to Steam
 }

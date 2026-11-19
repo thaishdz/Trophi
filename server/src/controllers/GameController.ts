@@ -56,12 +56,57 @@ export class GameController {
     }
   }
 
-  private async gameAchievements(gameId: number, steamId: string): Promise<GameData> {
+  // The user asks Steam again for their progress in a game, skipping the cache
+  public refreshGameAchievements = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
-      const playerDataAchievements: AchievementPlayerData =
+      if (!req.steamId) throw new HttpException(HTTP_RESPONSE_STATUS.UNAUTHORIZED, "SteamId not available");
+      const achievementsData = await this.gameAchievements(Number(req.params.gameId), req.steamId, { refresh: true });
+      res.json(createApiResponse(true, HTTP_RESPONSE_STATUS.OK, '', achievementsData));
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  // When the library was last synced with Steam and how many games it has
+  public getLibraryStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      if (!req.steamId) throw new HttpException(HTTP_RESPONSE_STATUS.UNAUTHORIZED, "SteamId not available");
+      const { value, syncedAt } = await this.gameService.getLibrary(req.steamId);
+      res.json(createApiResponse(true, HTTP_RESPONSE_STATUS.OK, '', { total: value.length, syncedAt }));
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public refreshLibrary = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      if (!req.steamId) throw new HttpException(HTTP_RESPONSE_STATUS.UNAUTHORIZED, "SteamId not available");
+      const { value, syncedAt } = await this.gameService.getLibrary(req.steamId, { refresh: true });
+      res.json(createApiResponse(true, HTTP_RESPONSE_STATUS.OK, '', { total: value.length, syncedAt }));
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  private async gameAchievements(gameId: number, steamId: string, { refresh = false } = {}): Promise<GameData> {
+    try {
+      const playerDataAchievements: AchievementPlayerData & { syncedAt: Date } =
         await this.achievementService.getLockedAchievementsDataForPlayer(
           gameId,
-          steamId
+          steamId,
+          { refresh }
         );
       const gameAchievements: GameData = {
         gameId,

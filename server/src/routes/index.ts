@@ -39,6 +39,14 @@ router.get(
   getSteamId,
   gamesController.getGameAchievements.bind(gamesController),
 );
+router.post(
+  `/gameAchievements/:gameId/refresh`,
+  ensureAuthenticated,
+  getSteamId,
+  gamesController.refreshGameAchievements,
+);
+router.get(`/library`, ensureAuthenticated, getSteamId, gamesController.getLibraryStatus);
+router.post(`/library/refresh`, ensureAuthenticated, getSteamId, gamesController.refreshLibrary);
 
 // Followed achievements of the logged-in user (the achievement is its apiname)
 router.get(`/follows/:gameId`, ensureAuthenticated, followController.list);

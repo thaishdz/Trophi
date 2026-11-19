@@ -18,12 +18,13 @@ jest.mock("../middlewares/steamId", () => ({
 }));
 
 const mockGetGamesLibrary = jest.fn();
+const mockGetLibrary = jest.fn();
 const mockFindGames = jest.fn();
 const mockGetLocked = jest.fn();
 jest.mock("../services/steam/SteamService", () => ({ __esModule: true, default: jest.fn() }));
 jest.mock("../services/games/GameService", () => ({
   __esModule: true,
-  default: jest.fn(() => ({ getGamesLibrary: mockGetGamesLibrary, findGames: mockFindGames })),
+  default: jest.fn(() => ({ getGamesLibrary: mockGetGamesLibrary, getLibrary: mockGetLibrary, findGames: mockFindGames })),
 }));
 jest.mock("../services/achievements/AchievementsService", () => ({
   __esModule: true,
@@ -94,7 +95,7 @@ describe("API routes", () => {
       expect(res.status).toBe(200);
       expect(res.body.data).toMatchObject({ gameId: 1145360, gameName: "Hades" });
       expect(mockSteamId).toHaveBeenCalled(); // regression: the route used to skip getSteamId and answer 401
-      expect(mockGetLocked).toHaveBeenCalledWith(1145360, STEAM_ID);
+      expect(mockGetLocked).toHaveBeenCalledWith(1145360, STEAM_ID, { refresh: false });
     });
 
     it("returns 401 when there is no session", async () => {
@@ -113,6 +114,60 @@ describe("API routes", () => {
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
+    });
+  });
+
+  describe("POST /gameAchievements/:gameId/refresh", () => {
+    it("asks Steam again for the player's progress, skipping the cache", async () => {
+      const syncedAt = new Date("2026-11-19T10:00:00Z");
+      mockGetLocked.mockResolvedValue({ ...lockedData, syncedAt });
+
+      const res = await request(app).post("/api/v1/gameAchievements/1145360/refresh");
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toMatchObject({ gameId: 1145360, gameName: "Hades", syncedAt: syncedAt.toISOString() });
+      expect(mockGetLocked).toHaveBeenCalledWith(1145360, STEAM_ID, { refresh: true });
+    });
+
+    it("returns 500 when Steam fails", async () => {
+      mockGetLocked.mockRejectedValue(new SteamApiError(500, "Steam is down"));
+
+      const res = await request(app).post("/api/v1/gameAchievements/1145360/refresh");
+
+      expect(res.status).toBe(500);
+    });
+  });
+
+  describe("library", () => {
+    const syncedAt = new Date("2026-11-19T10:00:00Z");
+
+    beforeEach(() => {
+      mockGetLibrary.mockResolvedValue({ value: [{ gameId: 1145360, gameName: "Hades" }], syncedAt });
+    });
+
+    it("returns when the library was last synced and its size", async () => {
+      const res = await request(app).get("/api/v1/library");
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual({ total: 1, syncedAt: syncedAt.toISOString() });
+      expect(mockGetLibrary).toHaveBeenCalledWith(STEAM_ID);
+    });
+
+    it("refreshes the library on demand", async () => {
+      const res = await request(app).post("/api/v1/library/refresh");
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual({ total: 1, syncedAt: syncedAt.toISOString() });
+      expect(mockGetLibrary).toHaveBeenCalledWith(STEAM_ID, { refresh: true });
+    });
+
+    it("returns 401 when there is no session", async () => {
+      mockAuth.mockImplementation((_req, res) => res.status(401).json({ success: false }));
+
+      const res = await request(app).post("/api/v1/library/refresh");
+
+      expect(res.status).toBe(401);
+      expect(mockGetLibrary).not.toHaveBeenCalled();
     });
   });
 
