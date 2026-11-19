@@ -1,5 +1,5 @@
 # Fixed project name: every git worktree shares the same containers, network and database volume
-name: trophylogger
+name: trophi
 
 services:
   api:
@@ -17,7 +17,7 @@ services:
       database-init:
         condition: service_completed_successfully
     networks:
-      - trophy-network
+      - trophi-network
 
   frontend:
     build:
@@ -33,7 +33,7 @@ services:
     depends_on:
       - api
     networks:
-      - trophy-network
+      - trophi-network
 
   database:
     image: mongo:8.2
@@ -48,7 +48,7 @@ services:
       timeout: 5s
       retries: 10
     networks:
-      - trophy-network
+      - trophi-network
 
   # inicializa el replica set y termina
   database-init:
@@ -60,10 +60,10 @@ services:
       - ./scripts/init-replica-set.js:/init-replica-set.js:ro
     entrypoint: mongosh --host database:27017 /init-replica-set.js
     networks:
-      - trophy-network
+      - trophi-network
 
 networks:
-  trophy-network:
+  trophi-network:
     driver: bridge
 
 volumes:
