@@ -22,8 +22,9 @@ La Web API de Steam tiene un límite diario por API key, así que casi todas las
 |---|---|
 | [0001](0001-auth_method_separate_collection.md) | Los métodos de login en una colección `AuthMethod` aparte, con índices únicos: la base de datos garantiza que un `steamId` o un email no pertenezcan a dos usuarios |
 | [0003](0003-steamid_middleware.md) | Resolver el `steamId` una vez por petición en un middleware, en vez de en cada método |
+| [0012](0012-sesiones_en_mongodb.md) | Sesiones de login en MongoDB con `connect-mongo` (30 días), para que sobrevivan a los reinicios de la API. JWT descartado: no permite cerrar sesión de verdad sin volver a guardar estado |
 
-**En conjunto:** la identidad se valida en la base de datos y se resuelve una sola vez, preparada para añadir login por email.
+**En conjunto:** la identidad se valida en la base de datos y se resuelve una sola vez, preparada para añadir login por email. La sesión también vive en MongoDB.
 
 ## Datos del usuario
 

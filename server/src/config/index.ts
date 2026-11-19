@@ -15,6 +15,7 @@ interface ENV {
   STEAM_API_KEY: string | undefined;
   FRONTEND_URL: string | undefined;
   BACKEND_URL: string | undefined;
+  SESSION_SECRET: string | undefined;
 }
 
 // Aquí le digo, vale Typescript pero yo quiero que estén definidas y deben verse así:
@@ -25,6 +26,7 @@ interface Config {
   STEAM_API_KEY: string;
   FRONTEND_URL: string;
   BACKEND_URL: string;
+  SESSION_SECRET: string;
 }
 
 const getEnv = (): ENV => {
@@ -35,6 +37,7 @@ const getEnv = (): ENV => {
     STEAM_API_KEY: process.env.STEAM_API_KEY,
     FRONTEND_URL: process.env.FRONTEND_URL,
     BACKEND_URL: process.env.BACKEND_URL,
+    SESSION_SECRET: process.env.SESSION_SECRET,
   }
 }
 

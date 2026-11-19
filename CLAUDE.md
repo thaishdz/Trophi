@@ -32,13 +32,13 @@ The server has no lint or build script, and `dev` uses `--transpile-only`, so ty
 
 ## Environment
 
-- Server env file: `server/src/config/.env` (git-ignored). `config/index.ts` throws at startup if any of `NODE_ENV`, `PORT`, `DATABASE_URI`, `STEAM_API_KEY`, `FRONTEND_URL`, `BACKEND_URL` is missing (`BACKEND_URL` is the API's public URL, used for the Steam OpenID `returnURL`). `SESSION_SECRET` is read directly from `process.env` in `app.ts` and is **not** validated there.
+- Server env file: `server/src/config/.env` (git-ignored). `config/index.ts` throws at startup if any of `NODE_ENV`, `PORT`, `DATABASE_URI`, `STEAM_API_KEY`, `FRONTEND_URL`, `BACKEND_URL`, `SESSION_SECRET` is missing (`BACKEND_URL` is the API's public URL, used for the Steam OpenID `returnURL`).
 - Client env file: `client/.env`, with `VITE_API_URL`.
 - MongoDB must run as a **replica set** (`rs0`); `scripts/init-replica-set.js` initializes it through the `database-init` compose service, and the API waits for it.
 
 ## Architecture
 
-**Request flow (server).** `server.ts` connects Mongoose, then starts `app.ts`: CORS (origin `FRONTEND_URL`, credentials on, since the session travels in a cookie) → JSON → morgan piped into Winston → `express-session` → Passport → `/api/v1` routes and `/auth` routes → `middlewares/error.ts` as global error handler. API responses are wrapped with `createApiResponse` (`common/http/responses.ts`); errors are thrown as `HttpException` / `SteamApiError`.
+**Request flow (server).** `server.ts` connects Mongoose, then starts `app.ts`: CORS (origin `FRONTEND_URL`, credentials on, since the session travels in a cookie) → JSON → morgan piped into Winston → `express-session` (stored in MongoDB's `sessions` collection through `connect-mongo`, see `config/session.ts`, so logins survive API restarts) → Passport → `/api/v1` routes and `/auth` routes → `middlewares/error.ts` as global error handler. API responses are wrapped with `createApiResponse` (`common/http/responses.ts`); errors are thrown as `HttpException` / `SteamApiError`.
 
 **Auth.** Steam OpenID through Passport (`config/passport.ts`). `/auth/steam` redirects to Steam, `/auth/steam/return` handles the callback and redirects to the frontend dashboard. Login methods live in a separate `AuthMethod` collection referencing `User` by `userId`, not embedded in `User` (ADR 0001), so lookups by `steamId` stay unique and email login can be added later. Flow diagram: `docs/flows/steam-auth-flow.md`. API routes are protected by `ensureAuthenticated`.
 

@@ -22,8 +22,9 @@ The Steam Web API has a daily limit per API key, so almost every server decision
 |---|---|
 | [0001](0001-auth_method_separate_collection.md) | Login methods in a separate `AuthMethod` collection with unique indexes: the database guarantees that a `steamId` or an email never belongs to two users |
 | [0003](0003-steamid_middleware.md) | Resolve the `steamId` once per request in a middleware, instead of in every method |
+| [0012](0012-sessions_in_mongodb.md) | Login sessions in MongoDB with `connect-mongo` (30 days), so they survive API restarts. JWT ruled out: it cannot really log out without storing state again |
 
-**Together:** identity is validated by the database and resolved only once, ready for email login.
+**Together:** identity is validated by the database and resolved only once, ready for email login. The session lives in MongoDB too.
 
 ## User data
 
