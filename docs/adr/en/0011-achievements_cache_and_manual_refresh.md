@@ -1,6 +1,6 @@
-# Server-side achievements cache and on-demand refresh by the user
+# Server-side and client-side achievements cache, and on-demand refresh by the user
 
-> **Decision**: Store in MongoDB each game's achievement schema (no expiry, renewed only if the progress lists an unknown achievement) and each player's progress (30 minutes), and add a "Refresh" button with no cooldown.
+> **Decision**: Store in MongoDB each game's achievement schema (no expiry, renewed only if the progress lists an unknown achievement) and each player's progress (30 minutes), and add a "Refresh" button with no cooldown. On the client, global cache defaults in TanStack Query.
 > **Date**: 2026-11-19
 > **Original**: [Spanish](../0011-cache_de_logros_y_refresco_manual.md)
 
@@ -12,6 +12,7 @@
 - The cache from [ADR 0002](0002-steam_achievement_sync_cache_strategy.md) only existed for the library ([ADR 0004](0004-games_library_cache_refresh.md)).
 - With a cache, the user does not immediately see a just-unlocked achievement or a just-bought game.
 - Each person runs their own instance with their own API key ([ADR 0002](0002-steam_achievement_sync_cache_strategy.md)): the Steam quota is not shared.
+- On the client, TanStack Query used its defaults. Queries without their own `staleTime` (session, notes, guides, videos, followed achievements and tracked games) **called my API again** on every page change or when coming back to the tab, even if the data had not changed.
 
 ## Options for the achievement schema
 
@@ -32,6 +33,14 @@ How an outdated schema is detected: `GetPlayerAchievements` returns every achiev
 | ⭐ **Automatic cache + button with no cooldown** | The user decides when they want fresh data and sees when it was last updated | Pressing it a lot spends requests (the button is disabled while refreshing) |
 | Stale-while-revalidate (renew in the background) | Never waits for Steam if there is a copy | Right after playing it shows the previous progress. Errors happen outside the request. The client already does this with TanStack Query |
 
+## Options for the client cache
+
+| Option | Pros | Cons |
+|---|---|---|
+| TanStack Query defaults (`staleTime` 0, `gcTime` 5 min, 3 retries, refetch on tab focus) | No configuration needed | Every page change or return to the tab repeats requests for data that has not changed. Data that leaves the screen is dropped after 5 minutes even if still fresh |
+| `staleTime` in each hook | Fine-tuning per piece of data | It has to be remembered in every new hook, and the configuration is repeated |
+| ⭐ **Global defaults in the `QueryClient`** | A single configuration for every query. Hooks with a longer server cache keep their own | A change made from another tab or device takes up to 5 minutes to show up |
+
 ## Reasoning
 
 - **Schema:** a time-based expiry adds nothing for data the developer defines once. The case that matters, new achievements, is detected by the progress itself. Fixes to texts or icons are cosmetic and very rare; if ever needed, deleting the game's document in `GameAchievementSchema` is enough.
@@ -39,11 +48,14 @@ How an outdated schema is detected: `GetPlayerAchievements` returns every achiev
 - **8 hours for the library:** it only changes when I buy a game. I go from the 5 minutes of [ADR 0004](0004-games_library_cache_refresh.md) to 8 hours, and for a just-bought game there is the library's "Refresh" button.
 - **Cooldown:** it only makes sense with an API key shared by many users, which is not the case.
 - **Stale-while-revalidate:** Trophi is for keeping track of the achievements I still have to unlock, and the key moment is opening it right after playing. This option would show me the previous progress exactly then, to save one wait every 30 minutes.
+- **Client cache:** my own mutations update the cache at once (`setQueryData` or `invalidateQueries`), so a 5-minute `staleTime` does not show me stale data after a change made in the app. With one instance per person, the only delayed case is editing from two tabs at once.
+- **8-hour `gcTime`:** equal to the longest `staleTime`, the library's. With the default 5 minutes, still-fresh data was dropped when leaving its page and requested again.
+- **No refetch on tab focus:** the "Refresh" buttons are there to get fresh data.
 - **If Steam fails:** on a normal load I serve the stored copy (as in [ADR 0004](0004-games_library_cache_refresh.md)). If the user presses "Refresh", I return the error: they asked for fresh data, and an old copy would make them think it was updated.
 
 ## Decision
 
-**Schema: cache per game with no expiry, renewed by the progress. Progress: 30-minute automatic cache. Library: 8-hour automatic cache. Both with a "Refresh" button with no cooldown.**
+**Schema: cache per game with no expiry, renewed by the progress. Progress: 30-minute automatic cache. Library: 8-hour automatic cache. Both with a "Refresh" button with no cooldown. Client: global defaults in the `QueryClient`.**
 
 | Piece | Detail |
 |---|---|
@@ -51,10 +63,13 @@ How an outdated schema is detected: `GetPlayerAchievements` returns every achiev
 | Shared logic | `readThrough` (`services/cache/readThrough.ts`), used by the library, the schema and the progress |
 | New routes | `POST /gameAchievements/:gameId/refresh`, `GET /library`, `POST /library/refresh` (with `syncedAt`) |
 | Interface | "Actualizar" ("Refresh") button and "Actualizado hace X" ("Updated X ago") on the game page and in the library |
+| Client | `client/src/config/queryClient.ts`: `staleTime` 5 min, `gcTime` 8 h, `retry` 1 and no `refetchOnWindowFocus`. The library (8 h), game page (30 min) and session (no retries) keep their own options |
 
 ## Consequences
 
 - An already visited game does not call Steam for 30 minutes, and search benefits from the same cache.
 - If Steam fails when renewing an outdated schema, the stored copy is served and the new achievements show up on the next attempt.
 - Fixes to texts or icons of existing achievements are not picked up on their own.
+- Moving between already loaded pages does not call my API while the data is less than 5 minutes old.
+- A change made from another tab or device can take up to 5 minutes to show up.
 - If Trophi ends up with many users on a single API key, the button needs a cooldown.

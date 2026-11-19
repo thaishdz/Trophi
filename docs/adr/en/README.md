@@ -12,7 +12,7 @@ The Steam Web API has a daily limit per API key, so almost every server decision
 |---|---|
 | [0002](0002-steam_achievement_sync_cache_strategy.md) | Use the instance's API key, never the user's, and cache on the server with a cooldown per `(user, game)` |
 | [0004](0004-games_library_cache_refresh.md) | Store the library in MongoDB, refresh it in the same request when it expires and serve the copy if Steam fails |
-| [0011](0011-achievements_cache_and_manual_refresh.md) | Expiry based on how each piece of data changes: library 8 h, progress 30 min and achievement schema with no expiry (renewed if the progress lists an unknown achievement). On-demand "Refresh" button |
+| [0011](0011-achievements_cache_and_manual_refresh.md) | Expiry based on how each piece of data changes: library 8 h, progress 30 min and achievement schema with no expiry (renewed if the progress lists an unknown achievement). On-demand "Refresh" button. Global TanStack Query cache defaults on the client |
 
 **Together:** a cache in MongoDB, a single function (`readThrough`) for all Steam data, and the user decides when they want fresh data.
 
