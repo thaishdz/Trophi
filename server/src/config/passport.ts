@@ -1,8 +1,8 @@
 import passport, { DoneCallback } from 'passport';
 import { SteamOpenIdStrategy, SteamOpenIdUserProfile } from 'passport-steam-openid';
 import axios from 'axios';
-import { User } from '../models/User';
-import { SteamAuthService } from '../services/steam/SteamAuthService';
+import { User } from '@/models/User';
+import { SteamAuthService } from '@/services/steam/SteamAuthService';
 import config from "./";
 
 const steamAuthService = new SteamAuthService()

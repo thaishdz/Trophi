@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { passport } from "../config/passport";
-import config from "../config";
+import { passport } from "@/config/passport";
+import config from "@/config";
 
 const router = Router();
 

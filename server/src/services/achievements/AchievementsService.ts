@@ -1,11 +1,11 @@
-import SteamService from "../steam/SteamService";
-import { ApiResponse } from "../../shared/types/apiResponse";
-import { SteamApiError } from "../../exceptions/SteamApiError";
-import { HTTP_RESPONSE_STATUS } from "../../common/http/constants";
-import { PLAYER_ACHIEVEMENTS_TTL_MS } from "../../config/constants";
-import { GameAchievementSchema } from "../../models/GameAchievementSchema";
-import { PlayerAchievements } from "../../models/PlayerAchievements";
-import { Cached, readThrough } from "../cache/readThrough";
+import SteamService from "@/services/steam/SteamService";
+import { ApiResponse } from "@/shared/types/apiResponse";
+import { SteamApiError } from "@/exceptions/SteamApiError";
+import { HTTP_RESPONSE_STATUS } from "@/common/http/constants";
+import { PLAYER_ACHIEVEMENTS_TTL_MS } from "@/config/constants";
+import { GameAchievementSchema } from "@/models/GameAchievementSchema";
+import { PlayerAchievements } from "@/models/PlayerAchievements";
+import { Cached, readThrough } from "@/services/cache/readThrough";
 
 import {
   AchievementDetails,
@@ -14,7 +14,7 @@ import {
   AchievementPlayerAchievedStats,
   AchievementPlayerData,
   AchievementsLockedData,
-} from "../../shared/types/achievement";
+} from "@/shared/types/achievement";
 
 class AchievementsService {
   constructor(

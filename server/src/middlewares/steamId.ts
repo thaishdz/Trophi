@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { HydratedDocument } from "mongoose";
-import { UserService } from "../services/UserService";
-import { IUser } from "../models/User";
-import { HttpException } from "../exceptions/HttpException";
-import { HTTP_RESPONSE_STATUS } from "../common/http/constants";
+import { UserService } from "@/services/UserService";
+import { IUser } from "@/models/User";
+import { HttpException } from "@/exceptions/HttpException";
+import { HTTP_RESPONSE_STATUS } from "@/common/http/constants";
 
 const userService = new UserService();
 

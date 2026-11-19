@@ -1,12 +1,12 @@
 import axios from "axios";
 
-import config from "../../config";
+import config from "@/config";
 
-import { HTTP_RESPONSE_STATUS } from "../../common/http/constants";
-import { SteamApiError } from "../../exceptions/SteamApiError";
-import { ApiResponse } from "../../shared/types/apiResponse";
-import { GameLibraryResponse } from "../../shared/types/game";
-import { STEAM_API_URL } from "../../config/constants";
+import { HTTP_RESPONSE_STATUS } from "@/common/http/constants";
+import { SteamApiError } from "@/exceptions/SteamApiError";
+import { ApiResponse } from "@/shared/types/apiResponse";
+import { GameLibraryResponse } from "@/shared/types/game";
+import { STEAM_API_URL } from "@/config/constants";
 
 class SteamService {
   private STEAM_API_KEY: string;

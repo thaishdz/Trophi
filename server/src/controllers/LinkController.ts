@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
-import LinkService, { LinkScope } from "../services/links/LinkService";
-import { LinkKind } from "../models/AchievementLink";
-import { createApiResponse } from "../common/http/responses";
-import { HTTP_RESPONSE_STATUS } from "../common/http/constants";
-import { HttpException } from "../exceptions/HttpException";
+import LinkService, { LinkScope } from "@/services/links/LinkService";
+import { LinkKind } from "@/models/AchievementLink";
+import { createApiResponse } from "@/common/http/responses";
+import { HTTP_RESPONSE_STATUS } from "@/common/http/constants";
+import { HttpException } from "@/exceptions/HttpException";
 
 const MAX_ACHIEVEMENT_LENGTH = 200;
 const MAX_TITLE_LENGTH = 200;

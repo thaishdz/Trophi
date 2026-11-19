@@ -1,13 +1,13 @@
 import axios from "axios";
-import { HTTP_RESPONSE_STATUS } from "../../common/http/constants";
-import { SteamApiError } from "../../exceptions/SteamApiError";
+import { HTTP_RESPONSE_STATUS } from "@/common/http/constants";
+import { SteamApiError } from "@/exceptions/SteamApiError";
 import ApiHandlerService from "./SteamService";
 
 
 jest.mock("axios");
 
 // The real config throws when the .env file is missing, so the tests use a fixed one
-jest.mock("../../config", () => ({
+jest.mock("@/config", () => ({
   __esModule: true,
   default: { STEAM_API_KEY: "test-key" },
 }));

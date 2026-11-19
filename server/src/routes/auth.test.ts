@@ -3,13 +3,13 @@ import request from "supertest";
 
 const FRONTEND_URL = "https://app.example.com";
 
-jest.mock("../config", () => ({
+jest.mock("@/config", () => ({
   __esModule: true,
   default: { FRONTEND_URL: "https://app.example.com" },
 }));
 
 // Passport simulado: la autenticación siempre "tiene éxito" y pasa al siguiente handler
-jest.mock("../config/passport", () => ({
+jest.mock("@/config/passport", () => ({
   passport: { authenticate: () => (_req: unknown, _res: unknown, next: () => void) => next() },
 }));
 

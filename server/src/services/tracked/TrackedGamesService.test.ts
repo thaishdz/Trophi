@@ -1,9 +1,9 @@
 import { Types } from "mongoose";
 import TrackedGamesService from "./TrackedGamesService";
-import { TrackedGame } from "../../models/TrackedGame";
-import GameService from "../games/GameService";
+import { TrackedGame } from "@/models/TrackedGame";
+import GameService from "@/services/games/GameService";
 
-jest.mock("../../models/TrackedGame", () => ({
+jest.mock("@/models/TrackedGame", () => ({
   TrackedGame: { find: jest.fn(), findOneAndUpdate: jest.fn(), deleteOne: jest.fn() },
 }));
 

@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { AchievementNote } from "../../models/AchievementNote";
+import { AchievementNote } from "@/models/AchievementNote";
 
 export interface NoteData {
   text: string;

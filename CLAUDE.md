@@ -41,6 +41,7 @@ npm run build                        # tsc -b && vite build
 ## Gotchas
 
 - `passport.ts` uses a custom axios client that always `JSON.parse`s, because Steam sometimes sends JSON with a wrong `Content-Type`. Keep it.
+- Server imports use the `@/` alias for `server/src/` (no `../`). It is registered in `tsconfig.json`, in `dev` (`-r tsconfig-paths/register`) and in Jest (`moduleNameMapper`); all three are needed.
 - `node_modules` lives in an anonymous volume per container: dependency changes need `--build -V`.
 - The compose project is fixed as `trophi` so every git worktree shares the containers and the database.
 - Vite uses polling and a fixed HMR port for Docker.

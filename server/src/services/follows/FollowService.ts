@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { FollowedAchievements } from "../../models/FollowedAchievements";
+import { FollowedAchievements } from "@/models/FollowedAchievements";
 
 class FollowService {
   async getFollowed(userId: Types.ObjectId, gameId: number): Promise<string[]> {

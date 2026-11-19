@@ -1,10 +1,10 @@
-import { HTTP_RESPONSE_STATUS } from "../../common/http/constants";
-import { SteamApiError } from "../../exceptions/SteamApiError";
-import SteamService from "../steam/SteamService";
+import { HTTP_RESPONSE_STATUS } from "@/common/http/constants";
+import { SteamApiError } from "@/exceptions/SteamApiError";
+import SteamService from "@/services/steam/SteamService";
 import AchievementsService from "./AchievementsService";
-import { PlayerAchievements } from "../../models/PlayerAchievements";
-import { GameAchievementSchema } from "../../models/GameAchievementSchema";
-import { PLAYER_ACHIEVEMENTS_TTL_MS } from "../../config/constants";
+import { PlayerAchievements } from "@/models/PlayerAchievements";
+import { GameAchievementSchema } from "@/models/GameAchievementSchema";
+import { PLAYER_ACHIEVEMENTS_TTL_MS } from "@/config/constants";
 
 import {
   gameAchieveResponseMock,
@@ -12,9 +12,9 @@ import {
   mockAchievementsDetails,
 } from "./__fixtures__/dataMock";
 
-jest.mock("../../services/steam/SteamService");
-jest.mock("../../models/PlayerAchievements");
-jest.mock("../../models/GameAchievementSchema");
+jest.mock("@/services/steam/SteamService");
+jest.mock("@/models/PlayerAchievements");
+jest.mock("@/models/GameAchievementSchema");
 
 const progressFindOne = PlayerAchievements.findOne as unknown as jest.Mock;
 const progressSave = PlayerAchievements.findOneAndUpdate as unknown as jest.Mock;

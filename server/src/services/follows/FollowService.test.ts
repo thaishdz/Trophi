@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
 import FollowService from "./FollowService";
-import { FollowedAchievements } from "../../models/FollowedAchievements";
+import { FollowedAchievements } from "@/models/FollowedAchievements";
 
-jest.mock("../../models/FollowedAchievements", () => ({
+jest.mock("@/models/FollowedAchievements", () => ({
   FollowedAchievements: { findOne: jest.fn(), findOneAndUpdate: jest.fn() },
 }));
 

@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 
-import GameService from "../services/games/GameService";
-import AchievementsService from "../services/achievements/AchievementsService";
+import GameService from "@/services/games/GameService";
+import AchievementsService from "@/services/achievements/AchievementsService";
 
-import { GameData } from "../shared/types/game";
-import { AchievementPlayerData } from "../shared/types/achievement";
-import { getCoverUrls } from "../services/steam/covers";
-import { createApiResponse } from "../common/http/responses";
-import { HTTP_RESPONSE_STATUS } from "../common/http/constants";
-import { SteamApiError } from "../exceptions/SteamApiError";
-import { HttpException } from "../exceptions/HttpException";
+import { GameData } from "@/shared/types/game";
+import { AchievementPlayerData } from "@/shared/types/achievement";
+import { getCoverUrls } from "@/services/steam/covers";
+import { createApiResponse } from "@/common/http/responses";
+import { HTTP_RESPONSE_STATUS } from "@/common/http/constants";
+import { SteamApiError } from "@/exceptions/SteamApiError";
+import { HttpException } from "@/exceptions/HttpException";
 
 
 export class GameController {
