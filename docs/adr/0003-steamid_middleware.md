@@ -1,44 +1,30 @@
-
 # SteamID por petición: middleware dedicado vs resolución repetida en cada método
 
-> Decisión: resolver el `steamId` del usuario autenticado una sola vez, en un middleware dedicado (`getSteamId`), en vez de que cada método que lo necesite lo resuelva por su cuenta. Fecha: 2026-08-13
+> **Decisión**: Resolver el `steamId` del usuario autenticado una sola vez, en un middleware dedicado (`getSteamId`), en vez de que cada método que lo necesite lo resuelva por su cuenta.
+> **Fecha**: 2026-08-13
 
+---
 
 ## Contexto
 
-SteamID se necesita para pedir la biblioteca de juegos así comos los logros de los mismos. Por lo que es un dato que consideré pedirlo solo una vez y tenerlo siempre disponible en cada llamada a la API de Steam.
+- El SteamID se necesita para pedir la biblioteca de juegos y los logros de cada uno.
+- Es un dato que consideré pedir solo una vez y tener siempre disponible en cada llamada a la API de Steam.
 
 ## Opciones consideradas
 
-### Opción A: Cada método resuelve su propio `steamID`cuando lo necesita
+| Opción | A favor | En contra |
+|---|---|---|
+| Cada método resuelve su propio `steamId` cuando lo necesita | No hace falta tocar el objeto `Request` ni crear un middleware nuevo | `gameAchievements` se llama una vez por cada juego encontrado: si resolviera el steamId, repetiría la misma consulta a `AuthMethod` para el mismo usuario varias veces en la misma petición |
+| ⭐ **Middleware dedicado: se resuelve una vez por petición** | Una sola consulta a `AuthMethod` por petición, sin importar cuántos métodos internos necesiten después el steamId. El controller queda más simple: lee `req.steamId` en vez de pedirlo a `UserService` | El middleware tiene que montarse en cada ruta que lo necesite |
 
-**Ventajas:**
+## Razonamiento
 
-- No hace falta tocar el objeto `Request` ni crear un middleware nuevo.
+- La finalidad era evitar repetir la misma consulta a `AuthMethod` varias veces dentro de una misma petición.
+- `gameAchievements` se ejecuta una vez por cada juego encontrado: resolver el `steamId` dentro de ese método habría supuesto tantas consultas a Mongo como juegos devolviese la búsqueda, pidiendo siempre el mismo dato.
 
-**Desventajas:**
+## Decisión
 
-- `gameAchievements` se llama una vez por cada juego encontrado. Si le tocara resolver el steamID, repetiría la misma consulta `AuthMethod` para el mismo usuario varias veces dentro la misma petición.
-
-
-### Opción B: middleware dedicado, se resuelve UNA vez por petición
-
-**Ventajas:**
-
-- Una sola consulta a `AuthMethod` por petición, sin implortar cuántos métodos internos necesiten el steamId después.
-- El controller queda más simple ya que lee directamente de `req.steamID` en vez de tener que instanciarlo a través de `UserService`
-
-**Desventajas:**
-
-- El middleware tiene que montarse en cada ruta que lo necesite
-
-# Razonamiento
-
-La finalidad era evitar repetir la misma consulta `AuthMethod`varias veces dentro de una misma petición. Esto es debido al funcionamiento de `gameAchievements`, este lanza una consulta por cada juego encontrado, de modo que, resolver el `steamID` dentro de ese método habría supuesto tantas consultas a Mongo como juegos devolviese la búsqueda, pidiendo siempre el mismo dato.
-
-# Decisión
-
-** Elegida: Opción B middlware dedicado getSteamID **
+**Elegida: middleware dedicado `getSteamId`.**
 
 ```ts
 import { Request, Response, NextFunction } from "express";
@@ -57,7 +43,7 @@ export const getSteamId = async (req: Request, res: Response, next: NextFunction
 }
 ```
 
-Este middleware se ejecutará tras `ensureAuthenticated` donde se necesite el `steamID`
+Se ejecuta tras `ensureAuthenticated` en las rutas que necesitan el `steamId`:
 
 ```ts
 router.get(
@@ -68,11 +54,7 @@ router.get(
 );
 ```
 
+## Cuándo revisar esta decisión
 
-# Cuándo revisar esta decisión
-
-Cuando:
-
-- Aparecen más datos derivados del usuario que varios controllers necesiten resolver de forma parecida, en ese caso, se llevaría a investigar algún patrón de diseño o arquitectura en vez de crear un middleware nuevo por cada dato
-
-- El número de rutas protegidas crece demasiado, lo que tocaría plantear agrupar middlewares por defecto.
+- Si aparecen más datos derivados del usuario que varios controllers necesiten resolver de forma parecida: en ese caso, investigar algún patrón de diseño o arquitectura en vez de crear un middleware nuevo por cada dato.
+- Si el número de rutas protegidas crece demasiado: tocaría plantear agrupar middlewares por defecto.
