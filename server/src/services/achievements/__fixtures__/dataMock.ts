@@ -57,31 +57,3 @@ export const achievementDetailsResponseMock: ApiResponse<AchievementDetailsRespo
         icon: "https://icon-gray.png",
     },
 ];
-
-export const mockLockedAchievementData = {
-    data: 
-    [
-        {
-            name: "ACHIEVEMENT_56",
-            defaultvalue: 0,
-            displayName: "You're the best",
-            hidden: 0,
-            description: "Beat the game on hard difficulty",
-            icon: "https://icon.png",
-            icongray: "https://icon-gray.png",
-            achieved: 0
-       },
-       {
-            name: "ACHIEVEMENT_3",
-            defaultvalue: 0,
-            displayName: "Killed 15 Scorchers",
-            hidden: 0,
-            description: "Killed 15 Scorchers machines",
-            icon: "https://icon.png",
-            icongray: "https://icon-gray.png",
-            achieved: 0
-        }
-    ]
-}
-
-    
