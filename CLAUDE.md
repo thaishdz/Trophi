@@ -26,6 +26,7 @@ npx jest -t "name of test"                            # single test by name
 npm run dev
 npm run build          # tsc -b && vite build
 npm run lint
+npm test               # vitest (jsdom); tests live next to the code as *.test.ts(x) under src/
 ```
 
 The server has no lint or build script, and `dev` uses `--transpile-only`, so type errors are not caught at runtime. Run `npx tsc --noEmit` in `server/` to type-check.
@@ -48,7 +49,7 @@ The server has no lint or build script, and `dev` uses `--transpile-only`, so ty
 
 **Steam API budget.** Each person runs their own instance with their own `STEAM_API_KEY` in the server `.env`; the app never stores keys of its users (ADR 0002). The rate limit (~100k requests/day) is per key, so it is only shared by the users of one instance, usually one. Data from Steam is still cached in MongoDB by how often it changes (ADR 0011): the library in `GameLibrary` (per `steamId`, `GAME_LIBRARY_TTL_MS`, 8 h), the player's progress in `PlayerAchievements` (per `(steamId, game)`, `PLAYER_ACHIEVEMENTS_TTL_MS`, 30 min) and each game's achievement schema in `GameAchievementSchema` (shared, no expiry, renewed when the progress brings an unknown achievement). The Refresh buttons bypass the cache with no cooldown. If Steam fails, a stale copy is returned. Keep calls to Steam to a minimum.
 
-**Client.** `App.tsx` → `Layout` (`Sidebar`) → `GamesLibrary` / `SearchBox` / `GameStatusTabs` / `GameCard`. Data fetching goes through TanStack Query against `API_URL` (`client/src/config`). Styling is neo-brutalist Tailwind in `styles.css`.
+**Client.** `App.tsx` → `Layout` (`Sidebar`) → `GamesLibrary` / `SearchBox` / `GameStatusTabs` / `GameCard`. Data fetching goes through TanStack Query against `API_URL` (`client/src/config`). There is no router: `lib/route.ts` turns the path into a view. Hook tests mock `../config` and `fetch`, and wrap the hook with `test/queryWrapper.tsx`. Styling is neo-brutalist Tailwind in `styles.css`.
 
 ## Gotchas
 
