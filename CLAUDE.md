@@ -1,57 +1,46 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-Trophi centralizes a user's Steam achievements. Monorepo: `server/` (Express + TypeScript + MongoDB) and `client/` (React 19 + Vite + Tailwind 4 + TanStack Query). Code comments and error messages are written in English; ADRs and docs are written in Spanish.
+Trophi centralizes a user's Steam achievements. Monorepo: `server/` (Express + TypeScript + MongoDB) and `client/` (React 19 + Vite + Tailwind 4 + TanStack Query). Code comments and error messages in English; ADRs and docs in Spanish, translated to English.
 
 ## Commands
 
-Everything runs via Docker Compose from the repo root (API on `:8000`, frontend on `:3000`, MongoDB on `:27017`):
+Services run with Docker Compose from the root (API `:8000`, frontend `:3000`, MongoDB `:27017`). Tests and checks run on the host:
 
 ```sh
-docker compose up      # start all services (bind-mounted, hot reload)
-docker compose down
-```
+docker compose up -d                 # start everything (hot reload)
+docker compose up -d --build -V api  # after a dependency change (same for frontend)
 
-Without Docker, run from each directory:
-
-```sh
 # server/
-npm run dev            # ts-node-dev --respawn --transpile-only src/server.ts
-npm test               # jest (ts-jest); tests live next to the code as *.test.ts under src/
-npx jest src/services/games/GameService.test.ts       # single file
-npx jest -t "name of test"                            # single test by name
+npm test                             # jest; npx jest <file> or -t "<name>" for one
+npx tsc --noEmit                     # type-check (dev uses --transpile-only)
 
 # client/
-npm run dev
-npm run build          # tsc -b && vite build
+npm test                             # vitest
 npm run lint
-npm test               # vitest (jsdom); tests live next to the code as *.test.ts(x) under src/
+npm run build                        # tsc -b && vite build
 ```
-
-The server has no lint or build script, and `dev` uses `--transpile-only`, so type errors are not caught at runtime. Run `npx tsc --noEmit` in `server/` to type-check.
 
 ## Environment
 
-- Server env file: `server/src/config/.env` (git-ignored). `config/index.ts` throws at startup if any of `NODE_ENV`, `PORT`, `DATABASE_URI`, `STEAM_API_KEY`, `FRONTEND_URL`, `BACKEND_URL`, `SESSION_SECRET` is missing (`BACKEND_URL` is the API's public URL, used for the Steam OpenID `returnURL`).
-- Client env file: `client/.env`, with `VITE_API_URL`.
-- MongoDB must run as a **replica set** (`rs0`); `scripts/init-replica-set.js` initializes it through the `database-init` compose service, and the API waits for it.
+- `server/src/config/.env`: `config/index.ts` fails at startup if `NODE_ENV`, `PORT`, `DATABASE_URI`, `STEAM_API_KEY`, `FRONTEND_URL`, `BACKEND_URL` (used for the OpenID `returnURL`) or `SESSION_SECRET` is missing.
+- `client/.env`: `VITE_API_URL`.
+- MongoDB is a replica set (`rs0`, set up by the `database-init` service) because the first login creates `User` and `AuthMethod` in a transaction.
 
 ## Architecture
 
-**Request flow (server).** `server.ts` connects Mongoose, then starts `app.ts`: CORS (origin `FRONTEND_URL`, credentials on, since the session travels in a cookie) → JSON → morgan piped into Winston → `express-session` (stored in MongoDB's `sessions` collection through `connect-mongo`, see `config/session.ts`, so logins survive API restarts) → Passport → `/api/v1` routes and `/auth` routes → `middlewares/error.ts` as global error handler. API responses are wrapped with `createApiResponse` (`common/http/responses.ts`); errors are thrown as `HttpException` / `SteamApiError`.
+**Server.** `app.ts`: CORS with credentials → JSON → morgan/Winston → `express-session` stored in MongoDB (`config/session.ts`, ADR 0012) → Passport → `/api/v1` and `/auth` → `middlewares/error.ts`. Responses use `createApiResponse`; errors are `HttpException` / `SteamApiError`.
 
-**Auth.** Steam OpenID through Passport (`config/passport.ts`). `/auth/steam` redirects to Steam, `/auth/steam/return` handles the callback and redirects to the frontend dashboard. Login methods live in a separate `AuthMethod` collection referencing `User` by `userId`, not embedded in `User` (ADR 0001), so lookups by `steamId` stay unique and email login can be added later. Flow diagram: `docs/flows/steam-auth-flow.md`. API routes are protected by `ensureAuthenticated`.
+**Auth.** Steam OpenID via Passport (`config/passport.ts`), redirecting back to `/dashboard`. Login methods live in `AuthMethod`, apart from `User` (ADR 0001). Routes use `ensureAuthenticated`; those that call Steam add `getSteamId`, which sets `req.steamId` (ADR 0003).
 
-**Steam ID per request.** `getSteamId` middleware resolves the authenticated user's `steamId` once and puts it on `req.steamId` (typed in `shared/types/express.d.ts`), instead of each service resolving it (ADR 0003). Routes that call Steam need it in the middleware chain: `ensureAuthenticated` → `getSteamId` → controller.
+**Services.** `routes/index.ts` wires everything by hand (ADR 0010). `SteamService` holds every Steam call and feeds `GameService` and `AchievementsService`. Follows, tracked games, notes and links (guides and videos) have their own service and controller.
 
-**Services.** `routes/index.ts` wires services by hand: `SteamService` (all Steam Web API calls, URLs in constants) is injected into `GameService` and `AchievementsService`, which are injected into `GameController`. Tests mock `SteamService` and use `__fixtures__/dataMock.ts` next to each service.
+**Steam cache.** One API key per instance (ADR 0002). Steam data is cached in MongoDB with `services/cache/readThrough.ts` (ADR 0011): library 8 h, player progress 30 min, achievement schema with no expiry (renewed when the progress lists an unknown achievement). Refresh buttons skip the cache; normal loads fall back to a stale copy if Steam fails. Keep Steam calls to a minimum.
 
-**Steam API budget.** Each person runs their own instance with their own `STEAM_API_KEY` in the server `.env`; the app never stores keys of its users (ADR 0002). The rate limit (~100k requests/day) is per key, so it is only shared by the users of one instance, usually one. Data from Steam is still cached in MongoDB by how often it changes (ADR 0011): the library in `GameLibrary` (per `steamId`, `GAME_LIBRARY_TTL_MS`, 8 h), the player's progress in `PlayerAchievements` (per `(steamId, game)`, `PLAYER_ACHIEVEMENTS_TTL_MS`, 30 min) and each game's achievement schema in `GameAchievementSchema` (shared, no expiry, renewed when the progress brings an unknown achievement). The Refresh buttons bypass the cache with no cooldown. If Steam fails, a stale copy is returned. Keep calls to Steam to a minimum.
-
-**Client.** `App.tsx` → `Layout` (`Sidebar`) → `GamesLibrary` / `SearchBox` / `GameStatusTabs` / `GameCard`. Data fetching goes through TanStack Query against `API_URL` (`client/src/config`). There is no router: `lib/route.ts` turns the path into a view. Hook tests mock `../config` and `fetch`, and wrap the hook with `test/queryWrapper.tsx`. Styling is neo-brutalist Tailwind in `styles.css`.
+**Client.** No router: `lib/route.ts` maps the path to a view (`/dashboard`, `/library`, `/library/:id`, `/library/:id/achievements/:apiname`, `/profile`). Data goes through the hooks in `hooks/`, with cache defaults in `config/queryClient.ts`. Dark theme tokens in `styles.css`; `TintedPage` tints each screen with the game's cover colours (ADR 0008). Hook tests mock `../config` and `fetch` and use `test/queryWrapper.tsx`.
 
 ## Gotchas
 
-- Steam sometimes returns a wrong `Content-Type` with a valid JSON body, so `passport.ts` uses a custom axios client that always tries `JSON.parse`. Don't replace it with the default axios.
-- Vite is configured with polling and fixed HMR host/port for use inside Docker.
+- `passport.ts` uses a custom axios client that always `JSON.parse`s, because Steam sometimes sends JSON with a wrong `Content-Type`. Keep it.
+- `node_modules` lives in an anonymous volume per container: dependency changes need `--build -V`.
+- The compose project is fixed as `trophi` so every git worktree shares the containers and the database.
+- Vite uses polling and a fixed HMR port for Docker.
