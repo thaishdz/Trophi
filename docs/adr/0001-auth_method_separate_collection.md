@@ -7,7 +7,7 @@
 
 ## Contexto
 
-TrophyLogger soporta varios métodos de autenticación por usuario (Steam OpenID e email/contraseña más adelante). El schema original embebía los métodos de auth como un array dentro del documento `User`:
+Trophi soporta varios métodos de autenticación por usuario (Steam OpenID e email/contraseña más adelante). El schema original embebía los métodos de auth como un array dentro del documento `User`:
 
 ```typescript
 authMethods: {

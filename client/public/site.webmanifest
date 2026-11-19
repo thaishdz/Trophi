@@ -1,6 +1,6 @@
 {
-  "name": "TrophyLogger",
-  "short_name": "Track your game achievements and trophies in one place",
+  "name": "Trophi",
+  "short_name": "Trophi",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-TrophyLogger centralizes a user's Steam achievements. Monorepo: `server/` (Express + TypeScript + MongoDB) and `client/` (React 19 + Vite + Tailwind 4 + TanStack Query). Code comments and error messages are written in English; ADRs and docs are written in Spanish.
+Trophi centralizes a user's Steam achievements. Monorepo: `server/` (Express + TypeScript + MongoDB) and `client/` (React 19 + Vite + Tailwind 4 + TanStack Query). Code comments and error messages are written in English; ADRs and docs are written in Spanish.
 
 ## Commands
 
