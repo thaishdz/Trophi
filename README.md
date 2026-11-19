@@ -19,8 +19,8 @@ Roughly half of the current code, most of the client and a large part of the tes
 1. Clone the repo:
 
    ```sh
-   git clone git@github.com:thaishdz/TrophyLogger.git
-   cd TrophyLogger
+   git clone git@github.com:thaishdz/Trophi.git
+   cd Trophi
    ```
 
 2. Create `server/src/config/.env`:
