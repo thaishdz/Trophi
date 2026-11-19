@@ -8,11 +8,9 @@ Todos tus logros de Steam en un mismo sitio. Inicia sesión con Steam, busca en 
 
 > **Estado:** en desarrollo. Puedes iniciar sesión con Steam, buscar en tu biblioteca, seguir logros pendientes y guardar juegos.
 
-## Sobre el código
+## Sobre este proyecto
 
-**Stack:** React 19, Vite, Tailwind 4 y TanStack Query en el cliente; Express, TypeScript y MongoDB en el servidor. Todo se ejecuta con Docker Compose.
-
-Aproximadamente la mitad del código actual, la mayor parte del cliente y buena parte de los tests, se ha escrito con Claude Code. La arquitectura, las decisiones de producto, las revisiones y los ADR son de la autora.
+Trophi empezó escrito a mano y después lo he ampliado y mejorado con IA (Claude Code), que ha escrito parte del código, sobre todo el cliente y los tests. La arquitectura, las decisiones de producto, las revisiones y los ADR son míos.
 
 ## Decisiones clave
 
