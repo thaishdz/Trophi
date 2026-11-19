@@ -52,6 +52,7 @@ Con refresco en la misma petición, la espera afecta a una búsqueda de cada var
 
 - Modelo `GameLibrary`: `steamId` (único), `games: [{ gameId, gameName }]` y `syncedAt`. La clave es `steamId` y no `userId` porque es lo que ya recibe `GameService.getGamesLibrary`.
 - Caducidad: `GAME_LIBRARY_TTL_MS` = 5 minutos, igual que el cooldown de logros del ADR 0002.
+  - **Actualización:** el [ADR 0011](0011-cache_de_logros_y_refresco_manual.md) amplía la caducidad a 8 horas y añade un botón para que el usuario refresque la biblioteca cuando quiera.
 - Si Steam falla y existe una copia, aunque esté caducada, se devuelve la copia. Si no hay copia, el error se propaga como antes.
 - Interfaz: mientras busca, `SearchBox` muestra "Buscando…" y bloquea el botón. No hay modal.
 
