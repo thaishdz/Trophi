@@ -17,14 +17,14 @@ function App() {
   // No router yet: the sidebar links are plain anchors, so the path picks the view
   const path = window.location.pathname
 
-  // /games/:id is the page of a single game; /games/:id/achievements/:apiname, one of its achievements
-  const [, gameMatch, achievementMatch] = path.match(/^\/games\/(\d+)(?:\/achievements\/([^/]+))?\/?$/) ?? []
+  // /library lists the games; /library/:id is the page of a single game; /library/:id/achievements/:apiname, one of its achievements
+  const [, gameMatch, achievementMatch] = path.match(/^\/library\/(\d+)(?:\/achievements\/([^/]+))?\/?$/) ?? []
   const gameId = Number(gameMatch)
   const achievementId = achievementMatch && decodeURIComponent(achievementMatch)
 
   return (
     <Layout>
-      {gameId && achievementId ? <AchievementDetail gameId={gameId} achievementId={achievementId} /> : gameId ? <GameDetail gameId={gameId} /> :path.startsWith('/games') ? <GamesLibrary /> : path.startsWith('/profile') ? <Profile /> : <Dashboard />}
+      {gameId && achievementId ? <AchievementDetail gameId={gameId} achievementId={achievementId} /> : gameId ? <GameDetail gameId={gameId} /> : path.startsWith('/library') ? <GamesLibrary /> : path.startsWith('/profile') ? <Profile /> : <Dashboard />}
     </Layout>
   )
 }

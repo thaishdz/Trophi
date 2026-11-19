@@ -15,7 +15,7 @@ function GameRow({ game }: { game: GameData }) {
   return (
     <li className="relative">
       <a
-        href={`/games/${game.gameId}`}
+        href={`/library/${game.gameId}`}
         className="flex items-center gap-4 rounded-2xl border border-(--p-line) bg-(--p-surface) p-3 transition-colors hover:border-(--p-accent)"
       >
         <GameCover

@@ -29,7 +29,7 @@ function NavItem({ href, label, active, children }: NavItemProps) {
 // Slim rail on the left with the items centered and spaced out (there are only two); on small screens it becomes a top bar
 function Sidebar() {
   const path = window.location.pathname
-  const inLibrary = path.startsWith('/games')
+  const inLibrary = path.startsWith('/library')
   const inProfile = path.startsWith('/profile')
 
   return (
@@ -45,7 +45,7 @@ function Sidebar() {
         </svg>
       </NavItem>
 
-      <NavItem href="/games" label="Biblioteca" active={inLibrary}>
+      <NavItem href="/library" label="Biblioteca" active={inLibrary}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
           <path d="M9.5 12a2 2 0 0 0-0.59-1.42l-1.5-1.5A2 2 0 0 06 8.5H1.5A1.5 1.5 0 0 00 10v4a1.5 1.5 0 0 01.5 1.5H6a2 2 0 0 01.41-0.59l1.5-1.5A2 2 0 0 09.5 12Z" />
           <path d="M22.5 8.5H18a2 2 0 0 0-1.41 0.58l-1.5 1.5a2 2 0 0 00 2.83l1.5 1.5a2 2 0 0 01.41 0.59h4.5A1.5 1.5 0 0 024 14v-4a1.5 1.5 0 0 0-1.5-1.5Z" />

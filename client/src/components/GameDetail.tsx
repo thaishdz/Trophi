@@ -39,7 +39,7 @@ function AchievementRow({ gameId, achievement, following, onToggle }: RowProps) 
     <li className="flex items-center gap-4 rounded-2xl border border-(--p-line) bg-(--p-surface) p-3.5 transition-colors hover:border-(--p-accent)">
       {/* The link opens the achievement page (guides and notes); the follow button stays its sibling */}
       <a
-        href={`/games/${gameId}/achievements/${encodeURIComponent(achievement.value)}`}
+        href={`/library/${gameId}/achievements/${encodeURIComponent(achievement.value)}`}
         className="group flex min-w-0 flex-1 items-center gap-4"
       >
         <img

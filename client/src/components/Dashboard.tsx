@@ -95,7 +95,7 @@ function CurrentGame({ entry }: { entry: SearchEntry | undefined }) {
           </span>
           <h2 className="mt-3 font-display text-6xl sm:text-8xl font-bold leading-[0.92] tracking-tight text-balance">
             {/* Stretched link: the whole hero opens the game page */}
-            <a href={`/games/${game.gameId}`} className="after:absolute after:inset-0 after:content-[''] hover:underline decoration-2 underline-offset-8">
+            <a href={`/library/${game.gameId}`} className="after:absolute after:inset-0 after:content-[''] hover:underline decoration-2 underline-offset-8">
               {game.gameName}
             </a>
           </h2>
@@ -126,7 +126,7 @@ function SearchTile({ entry }: { entry: SearchEntry }) {
   const { game } = entry
   return (
     <a
-      href={`/games/${game.gameId}`}
+      href={`/library/${game.gameId}`}
       aria-label={`Ver logros de ${game.gameName}`}
       className="group relative isolate aspect-[3/4] overflow-hidden rounded-2xl border border-(--p-line) bg-(--p-surface) text-left cursor-pointer"
     >
