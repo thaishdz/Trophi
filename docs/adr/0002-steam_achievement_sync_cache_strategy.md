@@ -6,7 +6,7 @@
 
 ## Contexto
 
-TrophyLogger permite al usuario elegir qué juegos quiere trackear para ver sus logros. El único dato necesario es lo que ya es público en el perfil de Steam del usuario, sus juegos y el estado de desbloqueo de logros. No hace falta actuar en nombre del usuario más allá de leer ese dato público.
+Trophi permite al usuario elegir qué juegos quiere trackear para ver sus logros. El único dato necesario es lo que ya es público en el perfil de Steam del usuario, sus juegos y el estado de desbloqueo de logros. No hace falta actuar en nombre del usuario más allá de leer ese dato público.
 
 La Web API de Steam tiene un límite aproximado de 100.000 peticiones/día, compartido entre **toda la aplicación** (por API key), no por usuario. Este presupuesto tiene que cubrir la actividad de sincronización de todos los usuarios combinada, así que la estrategia de sincronización tiene implicaciones directas en cuántos usuarios/juegos puede soportar la app antes del límite impuesto.
 

@@ -17,7 +17,7 @@ export type SearchEntry = {
   game: GameSummary
 }
 
-const STORAGE_KEY = 'trophylogger:search-history'
+const STORAGE_KEY = 'trophi:search-history'
 const MAX_ENTRIES = 8
 
 function read(): SearchEntry[] {

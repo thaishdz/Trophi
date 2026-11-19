@@ -1,8 +1,8 @@
-# TrophyLogger
+# Trophi
 
 All your Steam achievements in one place. Sign in with Steam, search your library and see which achievements you still have locked in each game.
 
-![TrophyLogger dashboard](docs/screenshots/2026-11-18.png)
+![Trophi dashboard](docs/screenshots/2026-11-18.png)
 
 > **Status:** early development. You can sign in with Steam, search your library, follow locked achievements and save games.
 
