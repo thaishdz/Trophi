@@ -12,7 +12,7 @@ La Web API de Steam tiene un límite diario por API key, así que casi todas las
 |---|---|
 | [0002](0002-steam_achievement_sync_cache_strategy.md) | Usar la API key de la instancia, nunca la del usuario, y cachear en el servidor con un cooldown por `(usuario, juego)` |
 | [0004](0004-games_library_cache_refresh.md) | Guardar la biblioteca en MongoDB, refrescarla en la misma petición cuando caduca y servir la copia si Steam falla |
-| [0011](0011-cache_de_logros_y_refresco_manual.md) | Caducidad según lo que cambia cada dato: biblioteca 8 h, progreso 30 min y schema de logros sin caducidad (se renueva si el progreso trae un logro desconocido). Botón "Actualizar" a demanda |
+| [0011](0011-cache_de_logros_y_refresco_manual.md) | Caducidad según lo que cambia cada dato: biblioteca 8 h, progreso 30 min y schema de logros sin caducidad (se renueva si el progreso trae un logro desconocido). Botón "Actualizar" a demanda. Valores globales de caché en TanStack Query en el cliente |
 
 **En conjunto:** una caché en MongoDB, una sola función (`readThrough`) para todos los datos de Steam, y el usuario decide cuándo quiere datos frescos.
 
