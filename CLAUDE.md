@@ -54,4 +54,3 @@ The server has no lint or build script, and `dev` uses `--transpile-only`, so ty
 
 - Steam sometimes returns a wrong `Content-Type` with a valid JSON body, so `passport.ts` uses a custom axios client that always tries `JSON.parse`. Don't replace it with the default axios.
 - Vite is configured with polling and fixed HMR host/port for use inside Docker.
-- Open TODOs: game covers from IGDB (`SteamService.ts`) and stronger `AchievementsService` tests.

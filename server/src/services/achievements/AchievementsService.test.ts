@@ -49,7 +49,7 @@ describe("AchievementsService --- Steam API", () => {
       .spyOn(achievementsService, "getAchievementsDetails")
       .mockResolvedValue(mockAchievementsDetails);
 
-    // Solo ACHIEVEMENT_56 está sin desbloquear; ACHIEVEMENT_3 ya está conseguido y se descarta
+    // Only ACHIEVEMENT_56 is still locked; ACHIEVEMENT_3 is already unlocked and left out
     const expectResult = {
       gameName: "Horizon Zero Dawn",
       totalGameAchievements: 2,
@@ -246,5 +246,101 @@ describe("AchievementsService --- cache", () => {
       expect.objectContaining({ achievements: mockAchievementsDetails, syncedAt: expect.any(Date) }),
       { upsert: true },
     );
+  });
+});
+
+describe("AchievementsService --- locked achievements", () => {
+  const gameId = 1;
+  const steamId = "76561198000000000";
+  let steamServiceMock: jest.Mocked<SteamService>;
+  let achievementsService: AchievementsService;
+
+  const steamProgress = (achievements: { apiname: string; achieved: 0 | 1; unlocktime: number }[]) => ({
+    data: { gameName: "Horizon Zero Dawn", totalGameAchievements: achievements.length, achievements },
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    steamServiceMock = new SteamService() as jest.Mocked<SteamService>;
+    achievementsService = new AchievementsService(steamServiceMock);
+    mockStored(progressFindOne, null);
+    mockStored(schemaFindOne, { gameId, achievements: mockAchievementsDetails, syncedAt: new Date() });
+    progressSave.mockResolvedValue(null);
+    schemaSave.mockResolvedValue(null);
+  });
+
+  it("saves only apiname, achieved and unlocktime of each achievement on a first visit", async () => {
+    const withExtraFields = gameAchieveResponseMock.data.achievements.map((a) => ({ ...a, name: "Display name", description: "Text" }));
+    steamServiceMock.getPlayerAchievements.mockResolvedValue(steamProgress(withExtraFields));
+
+    await achievementsService.getLockedAchievementsDataForPlayer(gameId, steamId);
+
+    const [, saved] = progressSave.mock.calls[0];
+    expect(saved.achievements).toEqual(gameAchieveResponseMock.data.achievements);
+  });
+
+  it("returns an empty list when every achievement is unlocked", async () => {
+    steamServiceMock.getPlayerAchievements.mockResolvedValue(steamProgress([
+      { apiname: "ACHIEVEMENT_56", achieved: 1, unlocktime: 1692438000 },
+      { apiname: "ACHIEVEMENT_3", achieved: 1, unlocktime: 1692438616 },
+    ]));
+
+    const result = await achievementsService.getLockedAchievementsDataForPlayer(gameId, steamId);
+
+    expect(result.achievements).toEqual([]);
+  });
+
+  it("lists the locked achievements in the order of the game schema", async () => {
+    steamServiceMock.getPlayerAchievements.mockResolvedValue(steamProgress([
+      { apiname: "ACHIEVEMENT_3", achieved: 0, unlocktime: 0 },
+      { apiname: "ACHIEVEMENT_56", achieved: 0, unlocktime: 0 },
+    ]));
+
+    const result = await achievementsService.getLockedAchievementsDataForPlayer(gameId, steamId);
+
+    expect(result.achievements.map((a) => a.value)).toEqual(["ACHIEVEMENT_56", "ACHIEVEMENT_3"]);
+  });
+
+  it("shows an achievement the game just added once the schema is asked again", async () => {
+    steamServiceMock.getPlayerAchievements.mockResolvedValue(steamProgress([
+      ...gameAchieveResponseMock.data.achievements,
+      { apiname: "NEW_DLC_ACHIEVEMENT", achieved: 0, unlocktime: 0 },
+    ]));
+    steamServiceMock.getAchievementsDetails.mockResolvedValue({
+      data: [
+        ...achievementDetailsResponseMock.data,
+        { ...achievementDetailsResponseMock.data[0], name: "NEW_DLC_ACHIEVEMENT", displayName: "New in the DLC" },
+      ],
+    });
+
+    const result = await achievementsService.getLockedAchievementsDataForPlayer(gameId, steamId);
+
+    expect(steamServiceMock.getAchievementsDetails).toHaveBeenCalledWith(gameId);
+    expect(result.achievements.map((a) => a.value)).toEqual(["ACHIEVEMENT_56", "NEW_DLC_ACHIEVEMENT"]);
+  });
+
+  it("leaves out an achievement missing from the schema if Steam fails to send the new schema", async () => {
+    steamServiceMock.getPlayerAchievements.mockResolvedValue(steamProgress([
+      ...gameAchieveResponseMock.data.achievements,
+      { apiname: "NEW_DLC_ACHIEVEMENT", achieved: 0, unlocktime: 0 },
+    ]));
+    steamServiceMock.getAchievementsDetails.mockRejectedValue(new SteamApiError(500, "Steam is down"));
+
+    const result = await achievementsService.getLockedAchievementsDataForPlayer(gameId, steamId);
+
+    expect(result.achievements.map((a) => a.value)).toEqual(["ACHIEVEMENT_56"]);
+  });
+
+  it("fails with a 500 SteamApiError when there is no stored progress and Steam fails", async () => {
+    steamServiceMock.getPlayerAchievements.mockRejectedValue(new Error("Network error"));
+
+    const result = achievementsService.getLockedAchievementsDataForPlayer(gameId, steamId);
+
+    await expect(result).rejects.toBeInstanceOf(SteamApiError);
+    await expect(result).rejects.toMatchObject({
+      status: HTTP_RESPONSE_STATUS.SERVER_ERROR,
+      message: "Error fetching player locked achievements data",
+    });
+    expect(progressSave).not.toHaveBeenCalled();
   });
 });
