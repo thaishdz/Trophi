@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import { passport } from "./config/passport";
-import session from "express-session";
+import { createSessionMiddleware } from "./config/session";
 
 import logger from "./config/logger";
 import routes from "./routes";
@@ -27,11 +27,7 @@ app.use(cors({
 app.use(express.json()); // Middlware de entrada de datos,analiza el body para ver si es un JSON y lo parsea para el controller
 app.use(morgan("combined", { stream })); // Registra detalles de cada solicitud HTTP usando Winston
 
-app.use(session({
-  secret: process.env.SESSION_SECRET as string,
-  resave: false,
-  saveUninitialized: false
-}));
+app.use(createSessionMiddleware());
 app.use(passport.initialize())
 app.use(passport.session())
 
