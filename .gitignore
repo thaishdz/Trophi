@@ -28,3 +28,7 @@ logs
 
 # Editor settings
 .vscode/
+
+# Quality-gate tools (crapper, dryer, mutator)
+.metrics/
+target/
